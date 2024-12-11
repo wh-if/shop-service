@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { AppController } from './controller/app.controller';
 import { AppService } from './service/app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { SystemService } from './service/system.service';
+import { SystemController } from './controller/system.controller';
 import AppConfig from './config';
 
 @Module({
@@ -10,12 +12,12 @@ import AppConfig from './config';
       type: 'mysql',
       port: 3306,
       ...AppConfig.mysql,
-      entities: [],
+      entities: [__dirname + '/entity/**.entity.js'],
       synchronize: true,
       autoLoadEntities: true,
     }),
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AppController, SystemController],
+  providers: [AppService, SystemService],
 })
 export class AppModule {}
