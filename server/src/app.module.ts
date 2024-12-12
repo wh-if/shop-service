@@ -4,7 +4,8 @@ import { AppService } from './service/app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SystemService } from './service/system.service';
 import { SystemController } from './controller/system.controller';
-import AppConfig from './config';
+import { AppConfig } from './config';
+import { UploadController } from './controller/upload.controller';
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import AppConfig from './config';
       autoLoadEntities: true,
     }),
   ],
-  controllers: [AppController, SystemController],
+  controllers: [AppController, SystemController, UploadController],
   providers: [AppService, SystemService],
 })
 export class AppModule {}

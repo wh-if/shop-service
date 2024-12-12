@@ -1,4 +1,4 @@
-export default {
+export const AppConfig = {
   /**
    * MySQL 版本为 8
    */
@@ -11,5 +11,11 @@ export default {
      * CREATE DATABASE shop CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
      *  */
     database: 'shop',
+  },
+  /**
+   * 上传的文件的保存路径
+   */
+  upload: {
+    directoryPath: 'upload',
   },
 };
