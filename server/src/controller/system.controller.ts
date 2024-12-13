@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
 import { AjaxResult } from 'src/common/AjaxResult';
 import { SystemService } from 'src/service/system.service';
 import {
@@ -33,5 +42,10 @@ export class SystemController {
   async insert(@Body() dto: ConfigurationInsertDTO): Promise<AjaxResult> {
     const result = await this.systemService.insert(dto);
     return AjaxResult.success(result);
+  }
+
+  @Delete('config/:id')
+  async delete(@Param('id') id: number) {
+    return this.systemService.delete(id);
   }
 }

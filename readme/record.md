@@ -10,6 +10,3 @@
 ### 记录
 1. Object和object类型的区别
 2. global.d.ts文件的作用
-
-### todo
-- 更新模板
