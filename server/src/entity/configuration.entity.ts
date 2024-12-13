@@ -4,12 +4,12 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 export class Configuration {
   @PrimaryGeneratedColumn()
   id: number;
-  @Column({ type: 'varchar', length: 4 })
+  @Column({ type: 'varchar', length: 12 })
   key: string;
   @Column({ type: 'json' })
-  value: Record<string, any>;
+  value: object;
 
-  constructor(key: string, value: Record<string, any>) {
+  constructor(key: string, value: object) {
     this.key = key;
     this.value = value;
   }

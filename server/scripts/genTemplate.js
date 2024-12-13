@@ -10,46 +10,107 @@ const path = require('path');
 const KEYNAME = process.argv.slice(2).at(0);
 const FIRST_UPPER_KEYNAME = KEYNAME.charAt(0).toUpperCase() + KEYNAME.slice(1);
 
+genEntity();
+genDto();
 genService();
 genController();
 updateAppModule();
 
+function genEntity() {
+  const TEMPLATE = `import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+
+@Entity()
+export class ${FIRST_UPPER_KEYNAME} {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  constructor() {}
+}
+`;
+  const filePath = path.join(
+    __dirname,
+    '../src/entity/' + KEYNAME + '.entity.ts',
+  );
+  createFile(filePath, TEMPLATE);
+}
+
+// 创建DTO
+function genDto() {
+  const TEMPLATE = `import { ${FIRST_UPPER_KEYNAME} } from 'src/entity/${KEYNAME}.entity';
+
+export type ${FIRST_UPPER_KEYNAME}UpdateDTO = Omit<${FIRST_UPPER_KEYNAME}, ''>;
+
+export type ${FIRST_UPPER_KEYNAME}InsertDTO = Omit<${FIRST_UPPER_KEYNAME}, 'id'>;
+`;
+  const filePath = path.join(__dirname, '../src/dto/' + KEYNAME + '.dto.ts');
+  createFile(filePath, TEMPLATE);
+}
+
 // 创建service
 function genService() {
-  const DTO_TEMPLATE = `import { Injectable } from '@nestjs/common';
-import { DataSource } from 'typeorm';
+  const TEMPLATE = `import { Injectable } from '@nestjs/common';
+import { ${FIRST_UPPER_KEYNAME} } from 'src/entity/${KEYNAME}.entity';
+import {
+  ${FIRST_UPPER_KEYNAME}InsertDTO,
+  ${FIRST_UPPER_KEYNAME}UpdateDTO,
+} from 'src/dto/${KEYNAME}.dto';
+import { DataSource, SelectQueryBuilder } from 'typeorm';
 
 @Injectable()
-export class ${FIRST_UPPER_KEYNAME}Service{
-  constructor(private dataSource: DataSource) {}
-
-  getList() {
-
+export class ${FIRST_UPPER_KEYNAME}Service {
+  ${KEYNAME}QBuilder: SelectQueryBuilder<${FIRST_UPPER_KEYNAME}>;
+  constructor(dataSource: DataSource) {
+    this.${KEYNAME}QBuilder = dataSource.createQueryBuilder(
+      ${FIRST_UPPER_KEYNAME},
+      '${KEYNAME}',
+    );
   }
 
-  find(id: number){
+  async getList(page: number, pageSize: number) {
+    const list = await this.${KEYNAME}QBuilder
+      .limit(pageSize)
+      .offset((page - 1) * pageSize)
+      .getMany();
 
+    const total = await this.${KEYNAME}QBuilder.getCount();
+    return {
+      list,
+      total,
+    };
   }
 
-  update(){
-
+  findById(id: number) {
+    return this.${KEYNAME}QBuilder.where({ id }).getOne();
   }
 
-  remove(id: number){
+  insert(dto: ${FIRST_UPPER_KEYNAME}InsertDTO) {
+    const ${KEYNAME} = new ${FIRST_UPPER_KEYNAME}(TODO);
+    return this.${KEYNAME}QBuilder.insert().values(${KEYNAME}).execute();
+  }
 
+  update(dto: ${FIRST_UPPER_KEYNAME}UpdateDTO) {
+    return this.${KEYNAME}QBuilder
+      .update()
+      .set(TODO)
+      .where({ id: dto.id })
+      .execute();
+  }
+
+  delete(id: number) {
+    return this.${KEYNAME}QBuilder.delete().where({ id }).execute();
   }
 }
-  `;
+`;
   const filePath = path.join(
     __dirname,
     '../src/service/' + KEYNAME + '.service.ts',
   );
-  createFile(filePath, DTO_TEMPLATE);
+  createFile(filePath, TEMPLATE);
 }
 
 // 创建controller
 function genController() {
-  const DTO_TEMPLATE = `import {
+  const TEMPLATE = `import {
   Body,
   Controller,
   Delete,
@@ -57,44 +118,55 @@ function genController() {
   Param,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { AjaxResult } from 'src/common/AjaxResult';
 import { ${FIRST_UPPER_KEYNAME}Service } from 'src/service/${KEYNAME}.service';
+import {
+  ${FIRST_UPPER_KEYNAME}InsertDTO,
+  ${FIRST_UPPER_KEYNAME}UpdateDTO,
+} from 'src/dto/${KEYNAME}.dto';
 
 @Controller('${KEYNAME}')
 export class ${FIRST_UPPER_KEYNAME}Controller {
   constructor(private ${KEYNAME}Service: ${FIRST_UPPER_KEYNAME}Service) {}
 
-  @Get()
-  getList(): AjaxResult {
-    return AjaxResult.success([]);
+  @Get('${KEYNAME}')
+  async getList(
+    @Query('page') page: number,
+    @Query('pageSize') pageSize: number,
+  ): Promise<AjaxResult> {
+    return AjaxResult.success(await this.${KEYNAME}Service.getList(page, pageSize));
   }
 
-  @Get('/:key')
-  find(@Param('key') key: string): AjaxResult {
-    return AjaxResult.fail(key);
+  @Get('${KEYNAME}/:id')
+  async find(@Param('id') id: number): Promise<AjaxResult> {
+    return AjaxResult.success(await this.${KEYNAME}Service.findById(id));
   }
 
-  @Post()
-  insert(@Body() dto: object): AjaxResult {
-    return AjaxResult.success(dto);
+  @Put('${KEYNAME}')
+  async update(@Body() dto: ${FIRST_UPPER_KEYNAME}UpdateDTO): Promise<AjaxResult> {
+    const result = await this.${KEYNAME}Service.update(dto);
+    return AjaxResult.success(result);
   }
 
-  @Put()
-  update(@Body() dto: object): AjaxResult {
-    return AjaxResult.success(dto);
+  @Post('${KEYNAME}')
+  async insert(@Body() dto: ${FIRST_UPPER_KEYNAME}InsertDTO): Promise<AjaxResult> {
+    const result = await this.${KEYNAME}Service.insert(dto);
+    return AjaxResult.success(result);
   }
 
-  @Delete('/:id')
-  remove(@Param('id') id: number): AjaxResult {
-    return AjaxResult.success({ id });
+  @Delete('${KEYNAME}/:id')
+  async delete(@Param('id') id: number) {
+    return this.${KEYNAME}Service.delete(id);
   }
-}`;
+}
+`;
   const filePath = path.join(
     __dirname,
     '../src/controller/' + KEYNAME + '.controller.ts',
   );
-  createFile(filePath, DTO_TEMPLATE);
+  createFile(filePath, TEMPLATE);
 }
 
 // 更新app.module.ts
