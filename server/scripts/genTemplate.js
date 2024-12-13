@@ -135,30 +135,31 @@ export class ${FIRST_UPPER_KEYNAME}Controller {
   async getList(
     @Query('page') page: number,
     @Query('pageSize') pageSize: number,
-  ): Promise<AjaxResult> {
+  ) {
     return AjaxResult.success(await this.${KEYNAME}Service.getList(page, pageSize));
   }
 
   @Get('${KEYNAME}/:id')
-  async find(@Param('id') id: number): Promise<AjaxResult> {
+  async find(@Param('id') id: number) {
     return AjaxResult.success(await this.${KEYNAME}Service.findById(id));
   }
 
   @Put('${KEYNAME}')
-  async update(@Body() dto: ${FIRST_UPPER_KEYNAME}UpdateDTO): Promise<AjaxResult> {
+  async update(@Body() dto: ${FIRST_UPPER_KEYNAME}UpdateDTO) {
     const result = await this.${KEYNAME}Service.update(dto);
     return AjaxResult.success(result);
   }
 
   @Post('${KEYNAME}')
-  async insert(@Body() dto: ${FIRST_UPPER_KEYNAME}InsertDTO): Promise<AjaxResult> {
+  async insert(@Body() dto: ${FIRST_UPPER_KEYNAME}InsertDTO) {
     const result = await this.${KEYNAME}Service.insert(dto);
     return AjaxResult.success(result);
   }
 
   @Delete('${KEYNAME}/:id')
   async delete(@Param('id') id: number) {
-    return this.${KEYNAME}Service.delete(id);
+    const result = await this.${KEYNAME}Service.delete(id);
+    return AjaxResult.success(result);
   }
 }
 `;
