@@ -18,4 +18,13 @@ export const AppConfig = {
   upload: {
     directoryPath: 'upload',
   },
+  /**
+   * auth
+   */
+  auth: {
+    jwt_secret: 'hello shop',
+    access_token_expiresIn: '30m',
+    refresh_token_expiresIn: '60m',
+    authcode_expiresIn: 60, // 数字(秒)
+  },
 };
