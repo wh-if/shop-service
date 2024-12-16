@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -11,7 +12,12 @@ import {
 } from '@nestjs/common';
 import { AjaxResult } from 'src/common/AjaxResult';
 import { UserService } from 'src/service/user.service';
-import { UserInsertDTO, UserUpdateDTO } from 'src/dto/user.dto';
+import {
+  UserInsertDTO,
+  UserListOrderDTO,
+  UserListQueryDTO,
+  UserUpdateDTO,
+} from 'src/dto/user.dto';
 import { AuthService } from 'src/service/auth.service';
 import { Public } from 'src/guard/auth.guard';
 import { RequestWithUserInfo } from 'src/common/type';
@@ -25,11 +31,18 @@ export class UserController {
 
   @Get('user')
   async getList(
-    @Query('page') page: number,
-    @Query('pageSize') pageSize: number,
-  ): Promise<AjaxResult> {
+    @Query('page', ParseIntPipe) page: number,
+    @Query('pageSize', ParseIntPipe) pageSize: number,
+    @Query('order') order: UserListOrderDTO,
+    @Query('query') query: UserListQueryDTO,
+  ) {
     if (page && pageSize) {
-      return AjaxResult.success(await this.userService.getList(page, pageSize));
+      return AjaxResult.success(
+        await this.userService.getUserList(query ?? {}, order ?? {}, {
+          page,
+          pageSize,
+        }),
+      );
     } else {
       return AjaxResult.fail('参数不能为空');
     }

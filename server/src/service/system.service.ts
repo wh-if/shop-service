@@ -2,43 +2,60 @@ import { Injectable } from '@nestjs/common';
 import { Configuration } from 'src/entity/configuration.entity';
 import {
   ConfigurationInsertDTO,
+  ConfigurationListOrderDTO,
+  ConfigurationListQueryDTO,
   ConfigurationUpdateDTO,
 } from 'src/dto/system.dto';
 import { DataSource, SelectQueryBuilder } from 'typeorm';
+import { ListPageParam } from 'src/common/type';
 
 @Injectable()
 export class SystemService {
-  configQBuilder: SelectQueryBuilder<Configuration>;
-  constructor(dataSource: DataSource) {
-    this.configQBuilder = dataSource.createQueryBuilder(
-      Configuration,
-      'configuration',
-    );
+  constructor(private dataSource: DataSource) {}
+
+  /**
+   * 每次读都获取一个新的sql构造器
+   */
+  public get configQBuilder(): SelectQueryBuilder<Configuration> {
+    return this.dataSource.createQueryBuilder(Configuration, 'configuration');
   }
 
-  async getList(page: number, pageSize: number) {
-    const list = await this.configQBuilder
-      .limit(pageSize)
-      .offset((page - 1) * pageSize)
-      .getMany();
+  async getConfigList(
+    query: ConfigurationListQueryDTO,
+    order: ConfigurationListOrderDTO,
+    page: ListPageParam,
+  ) {
+    const sqlBuilder = this.configQBuilder
+      .limit(page.pageSize)
+      .offset((page.page - 1) * page.pageSize)
+      .orderBy(order);
 
-    const total = await this.configQBuilder.getCount();
+    if (!!query.id) {
+      sqlBuilder.andWhere('configuration.id LIKE :id', { id: `%${query.id}%` });
+    }
+    if (!!query.key) {
+      sqlBuilder.andWhere('configuration.key LIKE :key', {
+        key: `%${query.key}%`,
+      });
+    }
+
+    const [list, total] = await sqlBuilder.getManyAndCount();
     return {
       list,
       total,
     };
   }
 
-  findByKey(key: string) {
+  findConfigByKey(key: string) {
     return this.configQBuilder.where({ key }).getOne();
   }
 
-  insert(dto: ConfigurationInsertDTO) {
+  insertConfig(dto: ConfigurationInsertDTO) {
     const configuration = new Configuration(dto.key, dto.value);
     return this.configQBuilder.insert().values(configuration).execute();
   }
 
-  update(dto: ConfigurationUpdateDTO) {
+  updateConfig(dto: ConfigurationUpdateDTO) {
     return this.configQBuilder
       .update()
       .set({ value: dto.value })
@@ -46,7 +63,7 @@ export class SystemService {
       .execute();
   }
 
-  delete(id: number) {
+  deleteConfig(id: number) {
     return this.configQBuilder.delete().where({ id }).execute();
   }
 }

@@ -1,3 +1,4 @@
+import { ListOrderType, ListQueryParam } from 'src/common/type';
 import { User } from 'src/entity/user.entity';
 
 export type UserUpdateDTO = Partial<
@@ -14,3 +15,20 @@ export interface UserInsertDTO {
 }
 
 export type LoginDTO = Partial<Omit<UserInsertDTO, 'name'>>;
+
+export type UserListQueryDTO = ListQueryParam<
+  User,
+  | 'id'
+  | 'createTime'
+  | 'lastLoginTime'
+  | 'name'
+  | 'role'
+  | 'status'
+  | 'telNumber'
+  | 'updateTime'
+>;
+
+export type UserListOrderDTO = ListOrderType<
+  User,
+  'id' | 'createTime' | 'lastLoginTime'
+>;
