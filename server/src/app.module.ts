@@ -26,6 +26,7 @@ import { AuthGuard } from './guard/auth.guard';
       entities: [__dirname + '/entity/**.entity.js'],
       synchronize: true,
       autoLoadEntities: true,
+      logging: ['query'],
     }),
     /**
      * token认证
