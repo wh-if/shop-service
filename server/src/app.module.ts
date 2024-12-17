@@ -13,6 +13,8 @@ import { AuthService } from './service/auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './guard/auth.guard';
+import { CategoryService } from './service/category.service';
+import { CategoryController } from './controller/category.controller';
 
 @Module({
   imports: [
@@ -42,6 +44,7 @@ import { AuthGuard } from './guard/auth.guard';
     UploadController,
     UserController,
     AuthController,
+    CategoryController,
   ],
   providers: [
     { provide: APP_GUARD, useClass: AuthGuard }, // token校验
@@ -49,6 +52,7 @@ import { AuthGuard } from './guard/auth.guard';
     SystemService,
     UserService,
     AuthService,
+    CategoryService,
   ],
 })
 export class AppModule {}
