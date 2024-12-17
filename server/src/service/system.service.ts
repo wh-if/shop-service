@@ -8,10 +8,13 @@ import {
 } from 'src/dto/system.dto';
 import { DataSource, SelectQueryBuilder } from 'typeorm';
 import { ListPageParam } from 'src/common/type';
+import { BaseService } from './base.service';
 
 @Injectable()
-export class SystemService {
-  constructor(private dataSource: DataSource) {}
+export class SystemService extends BaseService {
+  constructor(private dataSource: DataSource) {
+    super();
+  }
 
   /**
    * 每次读都获取一个新的sql构造器
@@ -38,6 +41,18 @@ export class SystemService {
         key: `%${query.key}%`,
       });
     }
+
+    this.genWhereSql<Configuration, ConfigurationListQueryDTO>(
+      sqlBuilder,
+      'configuration',
+      query,
+      {
+        stringType: ['id', 'key'],
+        timeType: [],
+        enumType: [],
+        numberType: [],
+      },
+    );
 
     const [list, total] = await sqlBuilder.getManyAndCount();
     return {

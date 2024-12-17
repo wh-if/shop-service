@@ -24,6 +24,7 @@ export class ${FIRST_UPPER_KEYNAME} {
   @PrimaryGeneratedColumn()
   id: number;
   
+  
 }
 `;
   const filePath = path.join(
@@ -37,9 +38,20 @@ export class ${FIRST_UPPER_KEYNAME} {
 function genDto() {
   const TEMPLATE = `import { ListOrderType, ListQueryParam } from 'src/common/type';
 import { ${FIRST_UPPER_KEYNAME} } from 'src/entity/${KEYNAME}.entity';
+  const TEMPLATE = `import { ListOrderType, ListQueryParam } from 'src/common/type';
+import { ${FIRST_UPPER_KEYNAME} } from 'src/entity/${KEYNAME}.entity';
 
 export type ${FIRST_UPPER_KEYNAME}UpdateDTO = Pick<${FIRST_UPPER_KEYNAME}, ''>;
+export type ${FIRST_UPPER_KEYNAME}UpdateDTO = Pick<${FIRST_UPPER_KEYNAME}, ''>;
 
+export type ${FIRST_UPPER_KEYNAME}InsertDTO = Pick<${FIRST_UPPER_KEYNAME}, ''>;
+
+export type ${FIRST_UPPER_KEYNAME}ListQueryDTO = ListQueryParam<
+  ${FIRST_UPPER_KEYNAME},
+  'id' | 'key'
+>;
+
+export type ${FIRST_UPPER_KEYNAME}ListOrderDTO = ListOrderType<${FIRST_UPPER_KEYNAME}, 'id'>;
 export type ${FIRST_UPPER_KEYNAME}InsertDTO = Pick<${FIRST_UPPER_KEYNAME}, ''>;
 
 export type ${FIRST_UPPER_KEYNAME}ListQueryDTO = ListQueryParam<
@@ -60,13 +72,47 @@ import { ${FIRST_UPPER_KEYNAME} } from 'src/entity/${KEYNAME}.entity';
 import {
   ${FIRST_UPPER_KEYNAME}ListOrderDTO,
   ${FIRST_UPPER_KEYNAME}ListQueryDTO,
+  ${FIRST_UPPER_KEYNAME}ListOrderDTO,
+  ${FIRST_UPPER_KEYNAME}ListQueryDTO,
   ${FIRST_UPPER_KEYNAME}InsertDTO,
   ${FIRST_UPPER_KEYNAME}UpdateDTO,
 } from 'src/dto/${KEYNAME}.dto';
 import { DataSource, SelectQueryBuilder } from 'typeorm';
 import { ListPageParam } from 'src/common/type';
+import { BaseService } from './base.service';
+import { ListPageParam } from 'src/common/type';
 
 @Injectable()
+export class ${FIRST_UPPER_KEYNAME}Service extends BaseService {
+  constructor(private dataSource: DataSource) {
+    super();
+  }
+
+  public get ${KEYNAME}QBuilder(): SelectQueryBuilder<${FIRST_UPPER_KEYNAME}> {
+    return this.dataSource.createQueryBuilder(${FIRST_UPPER_KEYNAME}, '${KEYNAME}');
+  }
+
+  async get${FIRST_UPPER_KEYNAME}List(
+    query: ${FIRST_UPPER_KEYNAME}ListQueryDTO,
+    order: ${FIRST_UPPER_KEYNAME}ListOrderDTO,
+    page: ListPageParam,
+  ) {
+    const sqlBuilder = this.${KEYNAME}QBuilder
+      .limit(page.pageSize)
+      .offset((page.page - 1) * page.pageSize)
+      .orderBy(order);
+
+    this.genWhereSql<${FIRST_UPPER_KEYNAME}, ${FIRST_UPPER_KEYNAME}ListQueryDTO>(
+      sqlBuilder,
+      '${KEYNAME}',
+      query,
+      {
+        stringType: ['id'],
+        timeType: [],
+        enumType: [],
+        numberType: [],
+      },
+    );
 export class ${FIRST_UPPER_KEYNAME}Service {
   constructor(private dataSource: DataSource) {}
 
@@ -89,6 +135,7 @@ export class ${FIRST_UPPER_KEYNAME}Service {
     }
 
     const [list, total] = await sqlBuilder.getManyAndCount();
+    const [list, total] = await sqlBuilder.getManyAndCount();
     return {
       list,
       total,
@@ -96,14 +143,18 @@ export class ${FIRST_UPPER_KEYNAME}Service {
   }
 
   find${FIRST_UPPER_KEYNAME}ById(id: number) {
+  find${FIRST_UPPER_KEYNAME}ById(id: number) {
     return this.${KEYNAME}QBuilder.where({ id }).getOne();
   }
 
   insert${FIRST_UPPER_KEYNAME}(dto: ${FIRST_UPPER_KEYNAME}InsertDTO) {
     const ${KEYNAME} = new ${FIRST_UPPER_KEYNAME}();
+  insert${FIRST_UPPER_KEYNAME}(dto: ${FIRST_UPPER_KEYNAME}InsertDTO) {
+    const ${KEYNAME} = new ${FIRST_UPPER_KEYNAME}();
     return this.${KEYNAME}QBuilder.insert().values(${KEYNAME}).execute();
   }
 
+  update${FIRST_UPPER_KEYNAME}(dto: ${FIRST_UPPER_KEYNAME}UpdateDTO) {
   update${FIRST_UPPER_KEYNAME}(dto: ${FIRST_UPPER_KEYNAME}UpdateDTO) {
     return this.${KEYNAME}QBuilder
       .update()
@@ -112,6 +163,7 @@ export class ${FIRST_UPPER_KEYNAME}Service {
       .execute();
   }
 
+  delete${FIRST_UPPER_KEYNAME}(id: number) {
   delete${FIRST_UPPER_KEYNAME}(id: number) {
     return this.${KEYNAME}QBuilder.delete().where({ id }).execute();
   }
@@ -133,6 +185,7 @@ function genController() {
   Get,
   Param,
   ParseIntPipe,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -142,6 +195,8 @@ import { ${FIRST_UPPER_KEYNAME}Service } from 'src/service/${KEYNAME}.service';
 import {
   ${FIRST_UPPER_KEYNAME}InsertDTO,
   ${FIRST_UPPER_KEYNAME}UpdateDTO,
+  ${FIRST_UPPER_KEYNAME}ListOrderDTO,
+  ${FIRST_UPPER_KEYNAME}ListQueryDTO,
   ${FIRST_UPPER_KEYNAME}ListOrderDTO,
   ${FIRST_UPPER_KEYNAME}ListQueryDTO,
 } from 'src/dto/${KEYNAME}.dto';
@@ -167,15 +222,36 @@ export class ${FIRST_UPPER_KEYNAME}Controller {
     } else {
       return AjaxResult.fail('参数不能为空');
     }
+  async get${FIRST_UPPER_KEYNAME}List(
+    @Query('page', ParseIntPipe) page: number,
+    @Query('pageSize', ParseIntPipe) pageSize: number,
+    @Query('order') order: ${FIRST_UPPER_KEYNAME}ListOrderDTO,
+    @Query('query') query: ${FIRST_UPPER_KEYNAME}ListQueryDTO,
+  ) {
+    if (page && pageSize) {
+      return AjaxResult.success(
+        await this.${KEYNAME}Service.getConfigList(query ?? {}, order ?? {}, {
+          page,
+          pageSize,
+        }),
+      );
+    } else {
+      return AjaxResult.fail('参数不能为空');
+    }
   }
 
   @Get('${KEYNAME}/:id')
   async find${FIRST_UPPER_KEYNAME}(@Param('id') id: number) {
     const result = await this.${KEYNAME}Service.find${FIRST_UPPER_KEYNAME}ById(id);
     return AjaxResult.success(result);
+  async find${FIRST_UPPER_KEYNAME}(@Param('id') id: number) {
+    const result = await this.${KEYNAME}Service.find${FIRST_UPPER_KEYNAME}ById(id);
+    return AjaxResult.success(result);
   }
 
   @Put('${KEYNAME}')
+  async update${FIRST_UPPER_KEYNAME}(@Body() dto: ${FIRST_UPPER_KEYNAME}UpdateDTO) {
+    const result = await this.${KEYNAME}Service.update${FIRST_UPPER_KEYNAME}(dto);
   async update${FIRST_UPPER_KEYNAME}(@Body() dto: ${FIRST_UPPER_KEYNAME}UpdateDTO) {
     const result = await this.${KEYNAME}Service.update${FIRST_UPPER_KEYNAME}(dto);
     return AjaxResult.success(result);
@@ -185,9 +261,15 @@ export class ${FIRST_UPPER_KEYNAME}Controller {
   async insert${FIRST_UPPER_KEYNAME}(@Body() dto: ${FIRST_UPPER_KEYNAME}InsertDTO) {
     const result = await this.${KEYNAME}Service.insert${FIRST_UPPER_KEYNAME}(dto);
     return AjaxResult.success(result.identifiers);
+  async insert${FIRST_UPPER_KEYNAME}(@Body() dto: ${FIRST_UPPER_KEYNAME}InsertDTO) {
+    const result = await this.${KEYNAME}Service.insert${FIRST_UPPER_KEYNAME}(dto);
+    return AjaxResult.success(result.identifiers);
   }
 
   @Delete('${KEYNAME}/:id')
+  async delete${FIRST_UPPER_KEYNAME}(@Param('id', ParseIntPipe) id: number) {
+    const result = await this.${KEYNAME}Service.delete${FIRST_UPPER_KEYNAME}(id);
+    return AjaxResult.success(result);
   async delete${FIRST_UPPER_KEYNAME}(@Param('id', ParseIntPipe) id: number) {
     const result = await this.${KEYNAME}Service.delete${FIRST_UPPER_KEYNAME}(id);
     return AjaxResult.success(result);
