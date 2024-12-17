@@ -30,5 +30,5 @@ export type UserListQueryDTO = ListQueryParam<
 
 export type UserListOrderDTO = ListOrderType<
   User,
-  'id' | 'createTime' | 'lastLoginTime'
+  'id' | 'createTime' | 'lastLoginTime' | 'updateTime'
 >;

@@ -24,7 +24,6 @@ export class ${FIRST_UPPER_KEYNAME} {
   @PrimaryGeneratedColumn()
   id: number;
   
-  
 }
 `;
   const filePath = path.join(
@@ -38,25 +37,14 @@ export class ${FIRST_UPPER_KEYNAME} {
 function genDto() {
   const TEMPLATE = `import { ListOrderType, ListQueryParam } from 'src/common/type';
 import { ${FIRST_UPPER_KEYNAME} } from 'src/entity/${KEYNAME}.entity';
-  const TEMPLATE = `import { ListOrderType, ListQueryParam } from 'src/common/type';
-import { ${FIRST_UPPER_KEYNAME} } from 'src/entity/${KEYNAME}.entity';
 
-export type ${FIRST_UPPER_KEYNAME}UpdateDTO = Pick<${FIRST_UPPER_KEYNAME}, ''>;
-export type ${FIRST_UPPER_KEYNAME}UpdateDTO = Pick<${FIRST_UPPER_KEYNAME}, ''>;
+export type ${FIRST_UPPER_KEYNAME}UpdateDTO = Pick<${FIRST_UPPER_KEYNAME}, 'id'>;
 
-export type ${FIRST_UPPER_KEYNAME}InsertDTO = Pick<${FIRST_UPPER_KEYNAME}, ''>;
+export type ${FIRST_UPPER_KEYNAME}InsertDTO = Pick<${FIRST_UPPER_KEYNAME}, 'id'>;
 
 export type ${FIRST_UPPER_KEYNAME}ListQueryDTO = ListQueryParam<
   ${FIRST_UPPER_KEYNAME},
-  'id' | 'key'
->;
-
-export type ${FIRST_UPPER_KEYNAME}ListOrderDTO = ListOrderType<${FIRST_UPPER_KEYNAME}, 'id'>;
-export type ${FIRST_UPPER_KEYNAME}InsertDTO = Pick<${FIRST_UPPER_KEYNAME}, ''>;
-
-export type ${FIRST_UPPER_KEYNAME}ListQueryDTO = ListQueryParam<
-  ${FIRST_UPPER_KEYNAME},
-  'id' | 'key'
+  'id'
 >;
 
 export type ${FIRST_UPPER_KEYNAME}ListOrderDTO = ListOrderType<${FIRST_UPPER_KEYNAME}, 'id'>;
@@ -72,15 +60,12 @@ import { ${FIRST_UPPER_KEYNAME} } from 'src/entity/${KEYNAME}.entity';
 import {
   ${FIRST_UPPER_KEYNAME}ListOrderDTO,
   ${FIRST_UPPER_KEYNAME}ListQueryDTO,
-  ${FIRST_UPPER_KEYNAME}ListOrderDTO,
-  ${FIRST_UPPER_KEYNAME}ListQueryDTO,
   ${FIRST_UPPER_KEYNAME}InsertDTO,
   ${FIRST_UPPER_KEYNAME}UpdateDTO,
 } from 'src/dto/${KEYNAME}.dto';
 import { DataSource, SelectQueryBuilder } from 'typeorm';
 import { ListPageParam } from 'src/common/type';
 import { BaseService } from './base.service';
-import { ListPageParam } from 'src/common/type';
 
 @Injectable()
 export class ${FIRST_UPPER_KEYNAME}Service extends BaseService {
@@ -113,28 +98,7 @@ export class ${FIRST_UPPER_KEYNAME}Service extends BaseService {
         numberType: [],
       },
     );
-export class ${FIRST_UPPER_KEYNAME}Service {
-  constructor(private dataSource: DataSource) {}
 
-  public get ${KEYNAME}QBuilder(): SelectQueryBuilder<${FIRST_UPPER_KEYNAME}> {
-    return this.dataSource.createQueryBuilder(${FIRST_UPPER_KEYNAME}, '${KEYNAME}');
-  }
-
-  async get${FIRST_UPPER_KEYNAME}List(
-    query: ${FIRST_UPPER_KEYNAME}ListQueryDTO,
-    order: ${FIRST_UPPER_KEYNAME}ListOrderDTO,
-    page: ListPageParam,
-  ) {
-    const sqlBuilder = this.${KEYNAME}QBuilder
-      .limit(page.pageSize)
-      .offset((page.page - 1) * page.pageSize)
-      .orderBy(order);
-
-    if (!!query.id) {
-      sqlBuilder.andWhere('${KEYNAME}.id LIKE :id', { id: \`%${query.id}%\` });
-    }
-
-    const [list, total] = await sqlBuilder.getManyAndCount();
     const [list, total] = await sqlBuilder.getManyAndCount();
     return {
       list,
@@ -143,27 +107,23 @@ export class ${FIRST_UPPER_KEYNAME}Service {
   }
 
   find${FIRST_UPPER_KEYNAME}ById(id: number) {
-  find${FIRST_UPPER_KEYNAME}ById(id: number) {
     return this.${KEYNAME}QBuilder.where({ id }).getOne();
   }
 
-  insert${FIRST_UPPER_KEYNAME}(dto: ${FIRST_UPPER_KEYNAME}InsertDTO) {
-    const ${KEYNAME} = new ${FIRST_UPPER_KEYNAME}();
   insert${FIRST_UPPER_KEYNAME}(dto: ${FIRST_UPPER_KEYNAME}InsertDTO) {
     const ${KEYNAME} = new ${FIRST_UPPER_KEYNAME}();
     return this.${KEYNAME}QBuilder.insert().values(${KEYNAME}).execute();
   }
 
   update${FIRST_UPPER_KEYNAME}(dto: ${FIRST_UPPER_KEYNAME}UpdateDTO) {
-  update${FIRST_UPPER_KEYNAME}(dto: ${FIRST_UPPER_KEYNAME}UpdateDTO) {
+    const { id, ...updateParams } = dto;
     return this.${KEYNAME}QBuilder
       .update()
-      .set(TODO)
-      .where({ id: dto.id })
+      .set(updateParams)
+      .where({ id })
       .execute();
   }
 
-  delete${FIRST_UPPER_KEYNAME}(id: number) {
   delete${FIRST_UPPER_KEYNAME}(id: number) {
     return this.${KEYNAME}QBuilder.delete().where({ id }).execute();
   }
@@ -185,7 +145,6 @@ function genController() {
   Get,
   Param,
   ParseIntPipe,
-  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -195,8 +154,6 @@ import { ${FIRST_UPPER_KEYNAME}Service } from 'src/service/${KEYNAME}.service';
 import {
   ${FIRST_UPPER_KEYNAME}InsertDTO,
   ${FIRST_UPPER_KEYNAME}UpdateDTO,
-  ${FIRST_UPPER_KEYNAME}ListOrderDTO,
-  ${FIRST_UPPER_KEYNAME}ListQueryDTO,
   ${FIRST_UPPER_KEYNAME}ListOrderDTO,
   ${FIRST_UPPER_KEYNAME}ListQueryDTO,
 } from 'src/dto/${KEYNAME}.dto';
@@ -212,46 +169,24 @@ export class ${FIRST_UPPER_KEYNAME}Controller {
     @Query('order') order: ${FIRST_UPPER_KEYNAME}ListOrderDTO,
     @Query('query') query: ${FIRST_UPPER_KEYNAME}ListQueryDTO,
   ) {
-    if (page && pageSize) {
-      return AjaxResult.success(
-        await this.${KEYNAME}Service.getConfigList(query ?? {}, order ?? {}, {
-          page,
-          pageSize,
-        }),
-      );
-    } else {
-      return AjaxResult.fail('参数不能为空');
-    }
-  async get${FIRST_UPPER_KEYNAME}List(
-    @Query('page', ParseIntPipe) page: number,
-    @Query('pageSize', ParseIntPipe) pageSize: number,
-    @Query('order') order: ${FIRST_UPPER_KEYNAME}ListOrderDTO,
-    @Query('query') query: ${FIRST_UPPER_KEYNAME}ListQueryDTO,
-  ) {
-    if (page && pageSize) {
-      return AjaxResult.success(
-        await this.${KEYNAME}Service.getConfigList(query ?? {}, order ?? {}, {
-          page,
-          pageSize,
-        }),
-      );
-    } else {
-      return AjaxResult.fail('参数不能为空');
-    }
+    const result = await this.${KEYNAME}Service.get${FIRST_UPPER_KEYNAME}List(
+      query ?? {},
+      order ?? {},
+      {
+        page,
+        pageSize,
+      },
+    );
+    return AjaxResult.success(result);
   }
 
   @Get('${KEYNAME}/:id')
-  async find${FIRST_UPPER_KEYNAME}(@Param('id') id: number) {
-    const result = await this.${KEYNAME}Service.find${FIRST_UPPER_KEYNAME}ById(id);
-    return AjaxResult.success(result);
-  async find${FIRST_UPPER_KEYNAME}(@Param('id') id: number) {
+  async find${FIRST_UPPER_KEYNAME}(@Param('id', ParseIntPipe) id: number) {
     const result = await this.${KEYNAME}Service.find${FIRST_UPPER_KEYNAME}ById(id);
     return AjaxResult.success(result);
   }
 
   @Put('${KEYNAME}')
-  async update${FIRST_UPPER_KEYNAME}(@Body() dto: ${FIRST_UPPER_KEYNAME}UpdateDTO) {
-    const result = await this.${KEYNAME}Service.update${FIRST_UPPER_KEYNAME}(dto);
   async update${FIRST_UPPER_KEYNAME}(@Body() dto: ${FIRST_UPPER_KEYNAME}UpdateDTO) {
     const result = await this.${KEYNAME}Service.update${FIRST_UPPER_KEYNAME}(dto);
     return AjaxResult.success(result);
@@ -261,15 +196,9 @@ export class ${FIRST_UPPER_KEYNAME}Controller {
   async insert${FIRST_UPPER_KEYNAME}(@Body() dto: ${FIRST_UPPER_KEYNAME}InsertDTO) {
     const result = await this.${KEYNAME}Service.insert${FIRST_UPPER_KEYNAME}(dto);
     return AjaxResult.success(result.identifiers);
-  async insert${FIRST_UPPER_KEYNAME}(@Body() dto: ${FIRST_UPPER_KEYNAME}InsertDTO) {
-    const result = await this.${KEYNAME}Service.insert${FIRST_UPPER_KEYNAME}(dto);
-    return AjaxResult.success(result.identifiers);
   }
 
   @Delete('${KEYNAME}/:id')
-  async delete${FIRST_UPPER_KEYNAME}(@Param('id', ParseIntPipe) id: number) {
-    const result = await this.${KEYNAME}Service.delete${FIRST_UPPER_KEYNAME}(id);
-    return AjaxResult.success(result);
   async delete${FIRST_UPPER_KEYNAME}(@Param('id', ParseIntPipe) id: number) {
     const result = await this.${KEYNAME}Service.delete${FIRST_UPPER_KEYNAME}(id);
     return AjaxResult.success(result);
@@ -303,13 +232,17 @@ import { ${FIRST_UPPER_KEYNAME}Controller } from './controller/${KEYNAME}.contro
 
     // 更新controllers数组
     let start = file.indexOf('controllers');
-    index = file.slice(start).indexOf('\n');
-    builder.splice(start + index - 1, 0, `, ${FIRST_UPPER_KEYNAME}Controller`);
+    index = file.slice(start).indexOf(']');
+    builder.splice(
+      start + index - 1,
+      0,
+      `    ${FIRST_UPPER_KEYNAME}Controller,\n`,
+    );
 
     // 更新providers数组
     start = file.indexOf('providers');
-    index = file.slice(start).indexOf('\n');
-    builder.splice(start + index, 0, `, ${FIRST_UPPER_KEYNAME}Service`);
+    index = file.slice(start).indexOf(']');
+    builder.splice(start + index, 0, `    ${FIRST_UPPER_KEYNAME}Service,\n`);
 
     fs.writeFile(appPath, builder.join('')).then(() => {
       console.log('update app.module.ts');

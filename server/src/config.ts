@@ -23,7 +23,7 @@ export const AppConfig = {
    */
   auth: {
     jwt_secret: 'hello shop',
-    access_token_expiresIn: '30m',
+    access_token_expiresIn: '10h',
     refresh_token_expiresIn: '60m',
     authcode_expiresIn: 60, // 数字(秒)
   },

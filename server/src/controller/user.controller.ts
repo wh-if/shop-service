@@ -36,16 +36,15 @@ export class UserController {
     @Query('order') order: UserListOrderDTO,
     @Query('query') query: UserListQueryDTO,
   ) {
-    if (page && pageSize) {
-      return AjaxResult.success(
-        await this.userService.getUserList(query ?? {}, order ?? {}, {
-          page,
-          pageSize,
-        }),
-      );
-    } else {
-      return AjaxResult.fail('参数不能为空');
-    }
+    const result = await this.userService.getUserList(
+      query ?? {},
+      order ?? {},
+      {
+        page,
+        pageSize,
+      },
+    );
+    return AjaxResult.success(result);
   }
 
   /**
@@ -55,7 +54,7 @@ export class UserController {
    */
   @Put('user/:id')
   async update(
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
     @Body() dto: UserUpdateDTO,
     @Req() request: RequestWithUserInfo,
   ) {
@@ -80,7 +79,7 @@ export class UserController {
   }
 
   @Delete('user/:id')
-  async delete(@Param('id') id: number) {
+  async delete(@Param('id', ParseIntPipe) id: number) {
     const result = await this.userService.delete(id);
     return AjaxResult.success(result);
   }

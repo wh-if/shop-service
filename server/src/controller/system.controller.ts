@@ -31,20 +31,19 @@ export class SystemController {
     @Query('order') order: ConfigurationListOrderDTO,
     @Query('query') query: ConfigurationListQueryDTO,
   ) {
-    if (page && pageSize) {
-      return AjaxResult.success(
-        await this.systemService.getConfigList(query ?? {}, order ?? {}, {
-          page,
-          pageSize,
-        }),
-      );
-    } else {
-      return AjaxResult.fail('参数不能为空');
-    }
+    const result = await this.systemService.getConfigList(
+      query ?? {},
+      order ?? {},
+      {
+        page,
+        pageSize,
+      },
+    );
+    return AjaxResult.success(result);
   }
 
   @Get('config/:key')
-  async findConfigByKey(@Param('key') key: string) {
+  async findConfigByKey(@Param('key', ParseIntPipe) key: string) {
     const result = await this.systemService.findConfigByKey(key);
     return AjaxResult.success(result);
   }
