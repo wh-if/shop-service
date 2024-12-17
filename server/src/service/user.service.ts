@@ -9,10 +9,13 @@ import {
 import { DataSource, SelectQueryBuilder } from 'typeorm';
 import { Md5Hash } from 'src/common/util';
 import { ListPageParam } from 'src/common/type';
+import { BaseService } from './base.service';
 
 @Injectable()
-export class UserService {
-  constructor(private dataSource: DataSource) {}
+export class UserService extends BaseService {
+  constructor(private dataSource: DataSource) {
+    super();
+  }
 
   /**
    * 每次读都获取一个新的sql构造器
@@ -30,30 +33,13 @@ export class UserService {
       .limit(page.pageSize)
       .offset((page.page - 1) * page.pageSize)
       .orderBy(order);
-    console.log(query.createTime);
 
-    if (!!query.id) {
-      sqlBuilder.andWhere('user.id LIKE :id', { id: `%${query.id}%` });
-    }
-
-    if (!!query.createTime) {
-      const [startTimeStamp, endTimeStamp] = query.createTime;
-
-      startTimeStamp &&
-        sqlBuilder.andWhere(`user.createTime >= :start`, {
-          start: new Date(parseInt(startTimeStamp)),
-        });
-      endTimeStamp &&
-        sqlBuilder.andWhere(`user.createTime <= :end`, {
-          end: new Date(parseInt(endTimeStamp)),
-        });
-    }
-
-    if (!!query.status) {
-      sqlBuilder.andWhere(`user.status IN (:...status)`, {
-        status: query.status,
-      });
-    }
+    this.genWhereSql<User, UserListQueryDTO>(sqlBuilder, 'user', query, {
+      stringType: ['id', 'name', 'telNumber'],
+      timeType: ['createTime', 'lastLoginTime', 'updateTime'],
+      enumType: ['role', 'status'],
+      numberType: [],
+    });
 
     const [list, total] = await sqlBuilder.getManyAndCount();
     return {

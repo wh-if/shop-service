@@ -65,10 +65,13 @@ import {
 } from 'src/dto/${KEYNAME}.dto';
 import { DataSource, SelectQueryBuilder } from 'typeorm';
 import { ListPageParam } from 'src/common/type';
+import { BaseService } from './base.service';
 
 @Injectable()
-export class ${FIRST_UPPER_KEYNAME}Service {
-  constructor(private dataSource: DataSource) {}
+export class ${FIRST_UPPER_KEYNAME}Service extends BaseService {
+  constructor(private dataSource: DataSource) {
+    super();
+  }
 
   public get ${KEYNAME}QBuilder(): SelectQueryBuilder<${FIRST_UPPER_KEYNAME}> {
     return this.dataSource.createQueryBuilder(${FIRST_UPPER_KEYNAME}, '${KEYNAME}');
@@ -84,9 +87,17 @@ export class ${FIRST_UPPER_KEYNAME}Service {
       .offset((page.page - 1) * page.pageSize)
       .orderBy(order);
 
-    if (!!query.id) {
-      sqlBuilder.andWhere('${KEYNAME}.id LIKE :id', { id: \`%${query.id}%\` });
-    }
+    this.genWhereSql<${FIRST_UPPER_KEYNAME}, ${FIRST_UPPER_KEYNAME}ListQueryDTO>(
+      sqlBuilder,
+      '${KEYNAME}',
+      query,
+      {
+        stringType: ['id'],
+        timeType: [],
+        enumType: [],
+        numberType: [],
+      },
+    );
 
     const [list, total] = await sqlBuilder.getManyAndCount();
     return {
