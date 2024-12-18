@@ -6,6 +6,7 @@ export type ProductUpdateDTO = Pick<
   | 'id'
   | 'avatar'
   | 'description'
+  | 'categoryId'
   | 'name'
   | 'options'
   | 'originalPrice'
@@ -19,6 +20,7 @@ export type ProductInsertDTO = Pick<
   Product,
   | 'name'
   | 'avatar'
+  | 'categoryId'
   | 'description'
   | 'options'
   | 'originalPrice'
@@ -32,6 +34,7 @@ export type ProductListQueryDTO = ListQueryParam<
   Product,
   | 'id'
   | 'name'
+  | 'categoryId'
   | 'price'
   | 'originalPrice'
   | 'status'

@@ -37,7 +37,7 @@ export class ProductService extends BaseService {
       {
         stringType: ['id', 'name'],
         timeType: ['createTime', 'updateTime'],
-        enumType: ['status'],
+        enumType: ['status', 'categoryId'],
         numberType: ['price', 'stockQuantity', 'originalPrice'],
       },
     );

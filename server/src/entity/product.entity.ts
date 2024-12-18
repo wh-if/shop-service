@@ -13,6 +13,8 @@ export class Product {
   id: number;
   @Column({ type: 'varchar', length: 32 })
   name: string;
+  @Column('int')
+  categoryId: number;
   @Column('varchar')
   description: string;
   @Column('varchar')
