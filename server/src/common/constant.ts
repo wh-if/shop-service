@@ -8,3 +8,8 @@ export enum USER_STATUS {
   OFF, // 禁用
   REMOVED, // 注销
 }
+
+export enum PRODUCT_STATUS {
+  ON, // 上架
+  OFF, // 下架
+}

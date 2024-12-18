@@ -15,6 +15,8 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './guard/auth.guard';
 import { CategoryService } from './service/category.service';
 import { CategoryController } from './controller/category.controller';
+import { ProductService } from './service/product.service';
+import { ProductController } from './controller/product.controller';
 
 @Module({
   imports: [
@@ -45,6 +47,7 @@ import { CategoryController } from './controller/category.controller';
     UserController,
     AuthController,
     CategoryController,
+    ProductController,
   ],
   providers: [
     { provide: APP_GUARD, useClass: AuthGuard }, // token校验
@@ -53,6 +56,7 @@ import { CategoryController } from './controller/category.controller';
     UserService,
     AuthService,
     CategoryService,
+    ProductService,
   ],
 })
 export class AppModule {}
