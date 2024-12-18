@@ -1,3 +1,4 @@
+import { BadRequestException } from '@nestjs/common';
 import { SelectQueryBuilder } from 'typeorm';
 
 export class BaseService {
@@ -31,6 +32,11 @@ export class BaseService {
       const value = query[key] as [string, string];
       if (!value) {
         return;
+      }
+      if (value.length !== 2) {
+        throw new BadRequestException(
+          `${key as string} 应该是长度为 2 的数组，表示开始和结束。`,
+        );
       }
       const isTimeRangne = keys.timeType.includes(key);
       let start: Date | number | string;

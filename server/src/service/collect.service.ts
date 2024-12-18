@@ -10,7 +10,7 @@ export class CollectService {
     private dataSource: DataSource,
     private userService: UserService,
   ) {}
-  
+
   async getCollectList(userId: number) {
     const user = await this.userService.userQBuilder
       .where({ id: userId })
