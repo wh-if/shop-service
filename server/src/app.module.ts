@@ -17,6 +17,8 @@ import { CategoryService } from './service/category.service';
 import { CategoryController } from './controller/category.controller';
 import { ProductService } from './service/product.service';
 import { ProductController } from './controller/product.controller';
+import { CollectController } from './controller/collect.controller';
+import { CollectService } from './service/collect.service';
 
 @Module({
   imports: [
@@ -48,6 +50,7 @@ import { ProductController } from './controller/product.controller';
     AuthController,
     CategoryController,
     ProductController,
+    CollectController,
   ],
   providers: [
     { provide: APP_GUARD, useClass: AuthGuard }, // token校验
@@ -57,6 +60,7 @@ import { ProductController } from './controller/product.controller';
     AuthService,
     CategoryService,
     ProductService,
+    CollectService,
   ],
 })
 export class AppModule {}
