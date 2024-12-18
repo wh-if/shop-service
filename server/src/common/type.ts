@@ -1,8 +1,10 @@
-export interface RequestWithUserInfo extends Express.Request {
-  userInfo: {
-    userId: string;
-    telNumber: string;
-  };
+export interface ExpressReqWithUser extends Express.Request {
+  userInfo: UserInfoOfRequest;
+}
+
+export interface UserInfoOfRequest {
+  userId: number;
+  telNumber: string;
 }
 
 export interface ListPageParam {

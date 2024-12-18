@@ -20,7 +20,7 @@ import {
 } from 'src/dto/user.dto';
 import { AuthService } from 'src/service/auth.service';
 import { Public } from 'src/guard/auth.guard';
-import { RequestWithUserInfo } from 'src/common/type';
+import { ExpressReqWithUser } from 'src/common/type';
 
 @Controller()
 export class UserController {
@@ -52,12 +52,8 @@ export class UserController {
    * @param dto
    * @returns
    */
-  @Put('user/:id')
-  async update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() dto: UserUpdateDTO,
-    @Req() request: RequestWithUserInfo,
-  ) {
+  @Put('user')
+  async update(@Body() dto: UserUpdateDTO, @Req() request: ExpressReqWithUser) {
     // 修改密码、电话时需要验证码
     if (dto.telNumber || dto.password) {
       // 检验验证码
@@ -71,7 +67,7 @@ export class UserController {
       }
     }
 
-    const result = await this.userService.update(dto, id);
+    const result = await this.userService.update(dto, request.userInfo.userId);
     if (typeof result === 'string') {
       return AjaxResult.fail(result);
     }
@@ -99,13 +95,13 @@ export class UserController {
 
   /**
    * 检查手机号是否被注册
-   * @param key
+   * @param telNumber
    * @returns
    */
   @Public()
   @Get('register/check')
-  async checkIfRegister(@Query('key') key: string) {
-    const result = await this.userService.findUserInfo(key, 'telNumber');
+  async checkIfRegister(@Query('telNumber') telNumber: string) {
+    const result = await this.userService.findUserInfo(telNumber);
     return AjaxResult.success({ hasRegister: !!result });
   }
 }

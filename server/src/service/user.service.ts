@@ -54,7 +54,8 @@ export class UserService extends BaseService {
    * @param type
    * @returns
    */
-  async findUserInfo(key: string, type: 'id' | 'telNumber') {
+  async findUserInfo(key: string | number) {
+    const type = typeof key === 'number' ? 'id' : 'telNumber';
     const result = await this.userQBuilder.where({ [type]: key }).getOne();
     return result;
   }

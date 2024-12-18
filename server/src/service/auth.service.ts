@@ -64,10 +64,7 @@ export class AuthService {
    */
   async login(dto: LoginDTO) {
     // 获取用户
-    const user = await this.userService.findUserInfo(
-      dto.telNumber,
-      'telNumber',
-    );
+    const user = await this.userService.findUserInfo(dto.telNumber);
     const { password, ...userInfo } = user;
 
     if (!user) {
