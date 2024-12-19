@@ -64,11 +64,11 @@ export class SetsService extends BaseService {
     sets.endDate = dto.endDate && new Date(parseInt(dto.endDate));
     sets.products = [];
 
-    for (let i = 0; i < dto.productIds.length; i++) {
-      const product = await this.dataSource
-        .getRepository(Product)
-        .findOne({ where: { id: dto.productIds[i] } });
-      sets.products.push(product);
+    if (dto.productIds?.length > 0) {
+      sets.products = await this.dataSource
+        .createQueryBuilder(Product, 'product')
+        .where('id IN (:...ids)', { ids: dto.productIds })
+        .getMany();
     }
 
     await this.dataSource.getRepository(Sets).save(sets);
@@ -77,22 +77,28 @@ export class SetsService extends BaseService {
   }
 
   async updateSets(dto: SetsUpdateDTO) {
-    const { id, productIds, ...updateParams } = dto;
-    const sets = await this.findSetsById(id);
-    if (!!productIds) {
-      sets.products = sets.products.filter((item) =>
-        productIds.includes(item.id),
-      );
-    }
-    sets.avatar = updateParams.avatar;
-    sets.description = updateParams.description;
-    sets.name = updateParams.name;
-    sets.price = updateParams.price;
-    sets.startDate =
-      dto.startDate && new Date(parseInt(updateParams.startDate));
-    sets.endDate = dto.endDate && new Date(parseInt(updateParams.endDate));
+    const { productIds, ...updateParams } = dto;
 
-    await this.dataSource.getRepository(Sets).save(sets);
+    let products: Product[];
+    if (productIds?.length > 0) {
+      products = await this.dataSource
+        .createQueryBuilder(Product, 'product')
+        .where('id IN (:...ids)', { ids: productIds })
+        .getMany();
+    } else if (productIds?.length === 0) {
+      products = [];
+    }
+
+    const startDate =
+      dto.startDate && new Date(parseInt(updateParams.startDate));
+    const endDate = dto.endDate && new Date(parseInt(updateParams.endDate));
+
+    await this.dataSource.getRepository(Sets).save({
+      ...updateParams,
+      startDate,
+      endDate,
+      products,
+    });
     return true;
   }
 
