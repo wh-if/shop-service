@@ -3,9 +3,11 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Coupon } from './coupon.entity';
 
 @Entity()
 export class Product {
@@ -35,4 +37,6 @@ export class Product {
   status: PRODUCT_STATUS;
   @Column({ type: 'json', nullable: true })
   options: object; // 商品可选项配置
+  @ManyToMany(() => Coupon, (coupon) => coupon.products)
+  coupons: Coupon[];
 }

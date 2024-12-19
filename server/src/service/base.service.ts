@@ -23,9 +23,12 @@ export class BaseService {
       if (!value) {
         return;
       }
-      sqlBuilder.andWhere(`${tableName}.${key as string} LIKE :param`, {
-        param: `%${value}%`,
-      });
+      sqlBuilder.andWhere(
+        `${tableName}.${key as string} LIKE :${key as string}`,
+        {
+          [key]: `%${value}%`,
+        },
+      );
     });
 
     [...keys.timeType, ...keys.numberType].forEach((key) => {
@@ -48,8 +51,9 @@ export class BaseService {
         if (isTimeRangne) {
           start = new Date(start);
         }
-        sqlBuilder.andWhere(`${tableName}.${key as string} >= :start`, {
-          start,
+        const paramName = (key as string) + 'start';
+        sqlBuilder.andWhere(`${tableName}.${key as string} >= :${paramName}`, {
+          [paramName]: start,
         });
       }
 
@@ -58,20 +62,24 @@ export class BaseService {
         if (isTimeRangne) {
           end = new Date(end);
         }
-        sqlBuilder.andWhere(`${tableName}.${key as string} <= :end`, {
-          end,
+        const paramName = (key as string) + 'end';
+        sqlBuilder.andWhere(`${tableName}.${key as string} <= :${paramName}`, {
+          [paramName]: end,
         });
       }
     });
 
     keys.enumType.forEach((key) => {
-      const value = query[key];
+      const value = query[key] as string[];
       if (!value) {
         return;
       }
-      sqlBuilder.andWhere(`${tableName}.${key as string} IN (:...param)`, {
-        param: value,
-      });
+      sqlBuilder.andWhere(
+        `${tableName}.${key as string} IN (:...${key as string})`,
+        {
+          [key]: value,
+        },
+      );
     });
   }
 }
