@@ -5,10 +5,13 @@ import {
   ProductListQueryDTO,
   ProductInsertDTO,
   ProductUpdateDTO,
+  ProductOptionInsertDTO,
+  ProductOptionUpdateDTO,
 } from 'src/dto/product.dto';
 import { DataSource, SelectQueryBuilder } from 'typeorm';
 import { ListPageParam } from 'src/common/type';
 import { BaseService } from './base.service';
+import { ProductOption } from 'src/entity/product_option.entity';
 
 @Injectable()
 export class ProductService extends BaseService {
@@ -27,8 +30,11 @@ export class ProductService extends BaseService {
   ) {
     const sqlBuilder = this.productQBuilder
       .limit(page.pageSize)
-      .offset((page.page - 1) * page.pageSize)
-      .orderBy(order);
+      .offset((page.page - 1) * page.pageSize);
+
+    Object.keys(order).forEach((item) => {
+      sqlBuilder.addOrderBy(`product.${item}`, order[item]);
+    });
 
     this.genWhereSql<Product, ProductListQueryDTO>(
       sqlBuilder,
@@ -38,11 +44,13 @@ export class ProductService extends BaseService {
         stringType: ['id', 'name'],
         timeType: ['createTime', 'updateTime'],
         enumType: ['status', 'categoryId'],
-        numberType: ['price', 'stockQuantity', 'originalPrice'],
+        numberType: [],
       },
     );
 
-    const [list, total] = await sqlBuilder.getManyAndCount();
+    const [list, total] = await sqlBuilder
+      .leftJoinAndSelect('product.options', 'product_option')
+      .getManyAndCount();
     return {
       list,
       total,
@@ -50,21 +58,14 @@ export class ProductService extends BaseService {
   }
 
   findProductById(id: number) {
-    return this.productQBuilder.where({ id }).getOne();
+    return this.productQBuilder
+      .where({ id })
+      .leftJoinAndSelect('product.options', 'product_option')
+      .getOne();
   }
 
   insertProduct(dto: ProductInsertDTO) {
-    const product = new Product();
-    product.name = dto.name;
-    product.avatar = dto.avatar;
-    product.description = dto.description;
-    product.options = dto.options;
-    product.price = dto.price;
-    product.originalPrice = dto.originalPrice;
-    product.pictures = dto.pictures;
-    product.stockQuantity = dto.stockQuantity;
-    product.status = dto.status;
-    return this.productQBuilder.insert().values(product).execute();
+    return this.productQBuilder.insert().values(dto).execute();
   }
 
   updateProduct(dto: ProductUpdateDTO) {
@@ -78,5 +79,53 @@ export class ProductService extends BaseService {
 
   deleteProduct(id: number) {
     return this.productQBuilder.delete().where({ id }).execute();
+  }
+
+  /**
+   * 添加商品选项
+   * @param dto
+   * @returns
+   */
+  async insertProductOption(dto: ProductOptionInsertDTO) {
+    const product = await this.findProductById(dto.productId);
+    const newProductOption = new ProductOption(
+      dto.name,
+      dto.price,
+      dto.originalPrice,
+      dto.stockQuantity,
+    );
+    newProductOption.product = product;
+
+    await this.dataSource.getRepository(ProductOption).save(newProductOption);
+
+    return true;
+  }
+
+  /**
+   * 修改商品选项信息
+   * @param dto
+   * @returns
+   */
+  updateProductOption(dto: ProductOptionUpdateDTO) {
+    const { id, ...updateParams } = dto;
+    return this.dataSource
+      .createQueryBuilder(ProductOption, 'product_option')
+      .update()
+      .set(updateParams)
+      .where({ id })
+      .execute();
+  }
+
+  /**
+   * 删除商品选项
+   * @param poId
+   * @returns
+   */
+  deleteProductOption(poId: number) {
+    return this.dataSource
+      .createQueryBuilder(ProductOption, 'product_option')
+      .delete()
+      .where({ id: poId })
+      .execute();
   }
 }

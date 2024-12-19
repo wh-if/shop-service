@@ -1,5 +1,6 @@
 import { ListOrderType, ListQueryParam } from 'src/common/type';
 import { Product } from 'src/entity/product.entity';
+import { ProductOption } from 'src/entity/product_option.entity';
 
 export type ProductUpdateDTO = Pick<
   Product,
@@ -8,47 +9,31 @@ export type ProductUpdateDTO = Pick<
   | 'description'
   | 'categoryId'
   | 'name'
-  | 'options'
-  | 'originalPrice'
   | 'pictures'
-  | 'price'
   | 'status'
-  | 'stockQuantity'
 >;
 
 export type ProductInsertDTO = Pick<
   Product,
-  | 'name'
-  | 'avatar'
-  | 'categoryId'
-  | 'description'
-  | 'options'
-  | 'originalPrice'
-  | 'pictures'
-  | 'price'
-  | 'status'
-  | 'stockQuantity'
+  'name' | 'avatar' | 'categoryId' | 'description' | 'pictures' | 'status'
 >;
 
 export type ProductListQueryDTO = ListQueryParam<
   Product,
-  | 'id'
-  | 'name'
-  | 'categoryId'
-  | 'price'
-  | 'originalPrice'
-  | 'status'
-  | 'stockQuantity'
-  | 'createTime'
-  | 'updateTime'
+  'id' | 'name' | 'categoryId' | 'status' | 'createTime' | 'updateTime'
 >;
 
 export type ProductListOrderDTO = ListOrderType<
   Product,
-  | 'id'
-  | 'createTime'
-  | 'updateTime'
-  | 'originalPrice'
-  | 'price'
-  | 'stockQuantity'
+  'id' | 'createTime' | 'updateTime'
+>;
+
+export type ProductOptionInsertDTO = Pick<
+  ProductOption,
+  'name' | 'originalPrice' | 'price' | 'stockQuantity'
+> & { productId: number };
+
+export type ProductOptionUpdateDTO = Pick<
+  ProductOption,
+  'id' | 'name' | 'originalPrice' | 'price' | 'stockQuantity'
 >;

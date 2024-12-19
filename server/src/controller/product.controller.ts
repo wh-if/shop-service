@@ -16,13 +16,15 @@ import {
   ProductUpdateDTO,
   ProductListOrderDTO,
   ProductListQueryDTO,
+  ProductOptionInsertDTO,
+  ProductOptionUpdateDTO,
 } from 'src/dto/product.dto';
 
-@Controller('product')
+@Controller()
 export class ProductController {
   constructor(private productService: ProductService) {}
 
-  @Get()
+  @Get('product')
   async getProductList(
     @Query('page', ParseIntPipe) page: number,
     @Query('pageSize', ParseIntPipe) pageSize: number,
@@ -40,27 +42,45 @@ export class ProductController {
     return AjaxResult.success(result);
   }
 
-  @Get('/:id')
+  @Get('product/:id')
   async findProduct(@Param('id', ParseIntPipe) id: number) {
     const result = await this.productService.findProductById(id);
     return AjaxResult.success(result);
   }
 
-  @Put()
+  @Put('product')
   async updateProduct(@Body() dto: ProductUpdateDTO) {
     const result = await this.productService.updateProduct(dto);
     return AjaxResult.success(result);
   }
 
-  @Post()
+  @Post('product')
   async insertProduct(@Body() dto: ProductInsertDTO) {
     const result = await this.productService.insertProduct(dto);
     return AjaxResult.success(result.identifiers);
   }
 
-  @Delete('/:id')
+  @Delete('product/:id')
   async deleteProduct(@Param('id', ParseIntPipe) id: number) {
     const result = await this.productService.deleteProduct(id);
+    return AjaxResult.success(result);
+  }
+
+  @Put('product_option')
+  async updateProductOption(@Body() dto: ProductOptionUpdateDTO) {
+    const result = await this.productService.updateProductOption(dto);
+    return AjaxResult.success(result);
+  }
+
+  @Post('product_option')
+  async insertProductOption(@Body() dto: ProductOptionInsertDTO) {
+    const result = await this.productService.insertProductOption(dto);
+    return result ? AjaxResult.success() : AjaxResult.fail();
+  }
+
+  @Delete('product_option/:id')
+  async deleteProductOption(@Param('id', ParseIntPipe) id: number) {
+    const result = await this.productService.deleteProductOption(id);
     return AjaxResult.success(result);
   }
 }
