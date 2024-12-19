@@ -103,8 +103,15 @@ export class CouponService extends BaseService {
     return true;
   }
 
-  deleteCoupon(id: number) {
-    return this.couponQBuilder.delete().where({ id }).execute();
+  async deleteCoupon(id: number) {
+    // 同时删除领取记录
+    await this.dataSource
+      .createQueryBuilder(ReceivedCoupon, 'received_coupon')
+      .delete()
+      .where('couponId = :id', { id })
+      .execute();
+
+    await this.couponQBuilder.delete().where({ id }).execute();
   }
 
   /**

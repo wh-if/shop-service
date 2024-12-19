@@ -17,3 +17,15 @@
 - [] 角色授权https://docs.nestjs.com/security/authorization
 - [] 全局错误处理
 - [] 参数校验
+
+### git
+1. git checkout -b feat-coupon
+2. code , format , lint , add , commit
+3. git push origin feat-coupon
+
+4. (github.com) create pr and merge
+
+5. git checkout master
+6. git pull origin master
+7. git branch -d feat-coupon
+8. git push origin --delete feat-coupon

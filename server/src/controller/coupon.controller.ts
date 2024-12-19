@@ -62,8 +62,8 @@ export class CouponController {
 
   @Delete('coupon/:id')
   async deleteCoupon(@Param('id', ParseIntPipe) id: number) {
-    const result = await this.couponService.deleteCoupon(id);
-    return AjaxResult.success(result);
+    await this.couponService.deleteCoupon(id);
+    return AjaxResult.success();
   }
 
   // 领取优惠券
