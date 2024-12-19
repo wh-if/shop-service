@@ -158,7 +158,7 @@ import {
   ${FIRST_UPPER_KEYNAME}ListQueryDTO,
 } from 'src/dto/${KEYNAME}.dto';
 
-@Controller('${KEYNAME}')
+@Controller()
 export class ${FIRST_UPPER_KEYNAME}Controller {
   constructor(private ${KEYNAME}Service: ${FIRST_UPPER_KEYNAME}Service) {}
 
