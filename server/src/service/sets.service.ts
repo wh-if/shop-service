@@ -34,8 +34,8 @@ export class SetsService extends BaseService {
     this.genWhereSql<Sets, SetsListQueryDTO>(sqlBuilder, 'sets', query, {
       stringType: ['id', 'name'],
       timeType: ['createDate', 'endDate', 'startDate'],
-      enumType: [],
-      numberType: ['price'],
+      enumType: ['type'],
+      numberType: [],
     });
 
     const [list, total] = await sqlBuilder
@@ -59,7 +59,6 @@ export class SetsService extends BaseService {
     sets.avatar = dto.avatar;
     sets.description = dto.description;
     sets.name = dto.name;
-    sets.price = dto.price;
     sets.startDate = dto.startDate && new Date(parseInt(dto.startDate));
     sets.endDate = dto.endDate && new Date(parseInt(dto.endDate));
     sets.products = [];

@@ -3,20 +3,20 @@ import { Sets } from 'src/entity/sets.entity';
 
 export type SetsUpdateDTO = Pick<
   Sets,
-  'id' | 'avatar' | 'description' | 'name' | 'price'
+  'id' | 'avatar' | 'description' | 'name' | 'amount' | 'type'
 > & { startDate: string; endDate: string; productIds: number[] };
 
 export type SetsInsertDTO = Pick<
   Sets,
-  'avatar' | 'description' | 'name' | 'price'
+  'avatar' | 'description' | 'name' | 'amount' | 'type'
 > & { startDate: string; endDate: string; productIds: number[] };
 
 export type SetsListQueryDTO = ListQueryParam<
   Sets,
-  'id' | 'endDate' | 'name' | 'price' | 'startDate' | 'createDate'
+  'id' | 'endDate' | 'name' | 'type' | 'startDate' | 'createDate'
 >;
 
 export type SetsListOrderDTO = ListOrderType<
   Sets,
-  'id' | 'createDate' | 'endDate' | 'price' | 'startDate'
+  'id' | 'createDate' | 'endDate' | 'startDate'
 >;
