@@ -21,6 +21,8 @@ import { CollectController } from './controller/collect.controller';
 import { CollectService } from './service/collect.service';
 import { SetsService } from './service/sets.service';
 import { SetsController } from './controller/sets.controller';
+import { CouponService } from './service/coupon.service';
+import { CouponController } from './controller/coupon.controller';
 
 @Module({
   imports: [
@@ -54,6 +56,7 @@ import { SetsController } from './controller/sets.controller';
     ProductController,
     CollectController,
     SetsController,
+    CouponController,
   ],
   providers: [
     { provide: APP_GUARD, useClass: AuthGuard }, // token校验
@@ -65,6 +68,7 @@ import { SetsController } from './controller/sets.controller';
     ProductService,
     CollectService,
     SetsService,
+    CouponService,
   ],
 })
 export class AppModule {}
