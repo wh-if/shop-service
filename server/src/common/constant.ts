@@ -28,3 +28,9 @@ export enum COUPON_TARGET {
   ORDER, // 作用于整个订单
   PRODUCT, // 作用于单个商品
 }
+
+export enum COMMENTS_STATUS {
+  PENDING, // 等待审核
+  APPROVED, // 正常
+  REJECTED, // 违规评论
+}
