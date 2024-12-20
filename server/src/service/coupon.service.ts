@@ -46,11 +46,16 @@ export class CouponService extends BaseService {
     };
   }
 
-  findCouponById(id: number) {
-    return this.couponQBuilder
-      .where({ id })
+  async findCouponById(id: number | number[]) {
+    const isArray = Array.isArray(id);
+    if (!isArray) {
+      id = [id as number];
+    }
+    const result = await this.couponQBuilder
+      .where('id IN (:...id)', { id })
       .leftJoinAndSelect('coupon.products', 'product')
-      .getOne();
+      .getMany();
+    return isArray ? result : result[0];
   }
 
   async insertCoupon(dto: CouponInsertDTO) {
@@ -133,15 +138,29 @@ export class CouponService extends BaseService {
     const receiveCoupon = new ReceivedCoupon(userId, couponId);
     await this.dataSource.getRepository(ReceivedCoupon).save(receiveCoupon);
 
+    // 更新剩余可用数量
+    await this.couponQBuilder
+      .update()
+      .set({ remainingQuantity: () => "'remainingQuantity' - 1" })
+      .where({ id: couponId })
+      .execute();
+
     return true;
   }
 
   /**
    * 使用优惠券，更新领取的优惠券使用状态
+   * 取消订单恢复优惠券使用状态
    * @param couponIds
+   * @param userId
+   * @param recover
    * @returns
    */
-  async useCoupon(couponIds: number[], userId: number) {
+  async changeReceivedCouponStatus(
+    couponIds: number[],
+    userId: number,
+    used: boolean,
+  ) {
     const coupons = await this.dataSource
       .createQueryBuilder(ReceivedCoupon, 'received_coupon')
       .where('userId = :userId', { userId })
@@ -149,7 +168,7 @@ export class CouponService extends BaseService {
       .getMany();
 
     for (let i = 0; i < coupons.length; i++) {
-      coupons[i].hasUsed = true;
+      coupons[i].hasUsed = used;
     }
     await this.dataSource.getRepository(ReceivedCoupon).save(coupons);
     return true;
@@ -182,5 +201,16 @@ export class CouponService extends BaseService {
       .getOne();
 
     return product.coupons;
+  }
+
+  /**
+   * 检查优惠券是否拥有
+   */
+  async checkCoupon(couponIds: number[], userId: number) {
+    const couponIdsOfUser = (await this.getCouponsByUser(userId)).map(
+      (item) => item.couponId,
+    );
+    const result = couponIds.some((item) => !couponIdsOfUser.includes(item));
+    return result;
   }
 }

@@ -25,6 +25,8 @@ import { CouponService } from './service/coupon.service';
 import { CouponController } from './controller/coupon.controller';
 import { CommentsService } from './service/comments.service';
 import { CommentsController } from './controller/comments.controller';
+import { OrderService } from './service/order.service';
+import { OrderController } from './controller/order.controller';
 
 @Module({
   imports: [
@@ -60,6 +62,7 @@ import { CommentsController } from './controller/comments.controller';
     SetsController,
     CouponController,
     CommentsController,
+    OrderController,
   ],
   providers: [
     { provide: APP_GUARD, useClass: AuthGuard }, // token校验
@@ -73,6 +76,7 @@ import { CommentsController } from './controller/comments.controller';
     SetsService,
     CouponService,
     CommentsService,
+    OrderService,
   ],
 })
 export class AppModule {}
