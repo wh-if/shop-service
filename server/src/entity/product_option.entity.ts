@@ -12,20 +12,12 @@ export class ProductOption {
   price: number; // 价格
   @Column('int')
   originalPrice: number; // 原价
-  @Column('int')
-  stockQuantity: number; // 库存
   @ManyToOne(() => Product, (product) => product.options)
   product: Product;
 
-  constructor(
-    name: string,
-    price: number,
-    originalPrice: number,
-    stockQuantity: number,
-  ) {
+  constructor(name: string, price: number, originalPrice: number) {
     this.name = name;
     this.originalPrice = originalPrice;
     this.price = price;
-    this.stockQuantity = stockQuantity;
   }
 }

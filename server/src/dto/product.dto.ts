@@ -30,10 +30,10 @@ export type ProductListOrderDTO = ListOrderType<
 
 export type ProductOptionInsertDTO = Pick<
   ProductOption,
-  'name' | 'originalPrice' | 'price' | 'stockQuantity'
+  'name' | 'originalPrice' | 'price'
 > & { productId: number };
 
 export type ProductOptionUpdateDTO = Pick<
   ProductOption,
-  'id' | 'name' | 'originalPrice' | 'price' | 'stockQuantity'
+  'id' | 'name' | 'originalPrice' | 'price'
 >;
