@@ -95,7 +95,11 @@ export class AuthService {
       user.id,
     );
 
-    const payload = { userId: user.id, telNumber: user.telNumber };
+    const payload = {
+      userId: user.id,
+      telNumber: user.telNumber,
+      role: user.role,
+    };
     return {
       access_token: await this.jwtService.signAsync(payload, {
         expiresIn: AppConfig.auth.access_token_expiresIn,

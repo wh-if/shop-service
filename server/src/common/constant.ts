@@ -34,3 +34,25 @@ export enum COMMENTS_STATUS {
   APPROVED, // 正常
   REJECTED, // 违规评论
 }
+
+export enum ORDER_STATUS {
+  WAIT_PAY, // 等待支付
+  WAIT_HANDLE, // 等待处理
+  HANDLING, // 处理中
+  FINISHED, // 完成
+  CANCEL, // 取消
+}
+
+export enum ORDER_TYPE {
+  IN_SHOP, // 店内使用
+  USER_SELF, // 用户自取
+}
+
+export enum PAY_TYPE {
+  DEAFULT, // 默认支付方式
+}
+
+export enum OrderDetailType {
+  Product,
+  Sets,
+}

@@ -1,5 +1,6 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Req } from '@nestjs/common';
 import { AjaxResult } from 'src/common/AjaxResult';
+import { ExpressReqWithUser } from 'src/common/type';
 import { LoginDTO } from 'src/dto/user.dto';
 import { Public } from 'src/guard/auth.guard';
 import { AuthService } from 'src/service/auth.service';
@@ -13,7 +14,11 @@ export class AuthController {
    */
   @Public()
   @Get('code')
-  getAuthCode(@Query('key') key: string) {
+  getAuthCode(@Query('key') key: string, @Req() request: ExpressReqWithUser) {
+    // 如果已经登录则给登录的号码发
+    if (!!request.userInfo.telNumber) {
+      key = request.userInfo.telNumber;
+    }
     if (!key) {
       return AjaxResult.fail('参数key不能为空。');
     }

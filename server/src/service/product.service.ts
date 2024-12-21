@@ -92,7 +92,6 @@ export class ProductService extends BaseService {
       dto.name,
       dto.price,
       dto.originalPrice,
-      dto.stockQuantity,
     );
     newProductOption.product = product;
 
