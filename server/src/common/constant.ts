@@ -1,6 +1,6 @@
 export enum USER_ROLE {
-  ADMIN, // 管理员用户
-  USER, // 普通用户
+  ADMIN = 'admin', // 管理员用户
+  USER = 'user', // 普通用户
 }
 
 export enum USER_STATUS {

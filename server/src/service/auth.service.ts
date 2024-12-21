@@ -98,7 +98,7 @@ export class AuthService {
     const payload = {
       userId: user.id,
       telNumber: user.telNumber,
-      role: user.role,
+      roles: user.roles,
     };
     return {
       access_token: await this.jwtService.signAsync(payload, {

@@ -19,12 +19,16 @@ import {
   CouponListQueryDTO,
 } from 'src/dto/coupon.dto';
 import { ExpressReqWithUser } from 'src/common/type';
+import { Public } from 'src/guard/auth.guard';
+import { Roles } from 'src/guard/role.guard';
+import { USER_ROLE } from 'src/common/constant';
 
 @Controller()
 export class CouponController {
   constructor(private couponService: CouponService) {}
 
   @Get('coupon')
+  @Public()
   async getCouponList(
     @Query('page', ParseIntPipe) page: number,
     @Query('pageSize', ParseIntPipe) pageSize: number,
@@ -68,6 +72,7 @@ export class CouponController {
 
   // 领取优惠券
   @Post('receive_coupon')
+  @Roles([USER_ROLE.USER])
   async receiveCoupon(
     @Query('couponId', ParseIntPipe) couponId: number,
     @Req() request: ExpressReqWithUser,
@@ -81,6 +86,7 @@ export class CouponController {
 
   // 我的优惠券列表(未使用的)
   @Get('receive_coupon/me')
+  @Roles([USER_ROLE.USER])
   async getCouponsByUser(@Req() request: ExpressReqWithUser) {
     const result = await this.couponService.getCouponsByUser(
       request.userInfo.userId,
@@ -90,6 +96,7 @@ export class CouponController {
 
   // 产品的可用优惠券
   @Get('product_coupon/:productId')
+  @Public()
   async getCouponsByProduct(
     @Param('productId', ParseIntPipe) productId: number,
   ) {

@@ -27,6 +27,7 @@ import { CommentsService } from './service/comments.service';
 import { CommentsController } from './controller/comments.controller';
 import { OrderService } from './service/order.service';
 import { OrderController } from './controller/order.controller';
+import { RolesGuard } from './guard/role.guard';
 
 @Module({
   imports: [
@@ -66,6 +67,10 @@ import { OrderController } from './controller/order.controller';
   ],
   providers: [
     { provide: APP_GUARD, useClass: AuthGuard }, // token校验
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
     AppService,
     SystemService,
     UserService,

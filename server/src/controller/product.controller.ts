@@ -19,12 +19,14 @@ import {
   ProductOptionInsertDTO,
   ProductOptionUpdateDTO,
 } from 'src/dto/product.dto';
+import { Public } from 'src/guard/auth.guard';
 
 @Controller()
 export class ProductController {
   constructor(private productService: ProductService) {}
 
   @Get('product')
+  @Public()
   async getProductList(
     @Query('page', ParseIntPipe) page: number,
     @Query('pageSize', ParseIntPipe) pageSize: number,
@@ -43,6 +45,7 @@ export class ProductController {
   }
 
   @Get('product/:id')
+  @Public()
   async findProduct(@Param('id', ParseIntPipe) id: number) {
     const result = await this.productService.findProductById(id);
     return AjaxResult.success(result);

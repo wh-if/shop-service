@@ -21,6 +21,8 @@ import {
 } from 'src/dto/order.dto';
 import { ExpressReqWithUser } from 'src/common/type';
 import { AuthService } from 'src/service/auth.service';
+import { USER_ROLE } from 'src/common/constant';
+import { Roles } from 'src/guard/role.guard';
 
 @Controller()
 export class OrderController {
@@ -30,6 +32,7 @@ export class OrderController {
   ) {}
 
   @Get('order')
+  @Roles([USER_ROLE.USER])
   async getOrderList(
     @Query('page', ParseIntPipe) page: number,
     @Query('pageSize', ParseIntPipe) pageSize: number,
@@ -48,6 +51,7 @@ export class OrderController {
   }
 
   @Get('order/:id')
+  @Roles([USER_ROLE.USER])
   async findOrder(@Param('id', ParseIntPipe) id: number) {
     const result = await this.orderService.findOrderById(id);
     return AjaxResult.success(result);
@@ -63,6 +67,7 @@ export class OrderController {
   }
 
   @Put('order/cancel/:id')
+  @Roles([USER_ROLE.USER])
   async cancelStatus(@Param('id', ParseIntPipe) id: number) {
     const result = await this.orderService.cancelOrder(id);
 
@@ -80,6 +85,7 @@ export class OrderController {
    * @returns
    */
   @Post('order/pay')
+  @Roles([USER_ROLE.USER])
   async payOrder(@Body() dto: OrderPayDTO, @Req() request: ExpressReqWithUser) {
     // 检验验证码
     if (
@@ -92,6 +98,7 @@ export class OrderController {
   }
 
   @Post('order')
+  @Roles([USER_ROLE.USER])
   async insertOrder(
     @Body() dto: OrderInsertDTO,
     @Req() request: ExpressReqWithUser,
@@ -109,6 +116,7 @@ export class OrderController {
   }
 
   @Delete('order/:id')
+  @Roles([USER_ROLE.USER])
   async deleteOrder(@Param('id', ParseIntPipe) id: number) {
     const result = await this.orderService.deleteOrder(id);
     if (typeof result === 'string') {

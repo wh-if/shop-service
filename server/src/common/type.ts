@@ -1,3 +1,5 @@
+import { USER_ROLE } from './constant';
+
 export interface ExpressReqWithUser extends Express.Request {
   userInfo: UserInfoOfRequest;
 }
@@ -5,6 +7,7 @@ export interface ExpressReqWithUser extends Express.Request {
 export interface UserInfoOfRequest {
   userId: number;
   telNumber: string;
+  roles: USER_ROLE[];
 }
 
 export interface ListPageParam {

@@ -17,12 +17,14 @@ import {
   SetsListOrderDTO,
   SetsListQueryDTO,
 } from 'src/dto/sets.dto';
+import { Public } from 'src/guard/auth.guard';
 
 @Controller('sets')
 export class SetsController {
   constructor(private setsService: SetsService) {}
 
   @Get()
+  @Public()
   async getSetsList(
     @Query('page', ParseIntPipe) page: number,
     @Query('pageSize', ParseIntPipe) pageSize: number,
@@ -42,6 +44,7 @@ export class SetsController {
   }
 
   @Get('/:id')
+  @Public()
   async findSets(@Param('id', ParseIntPipe) id: number) {
     const result = await this.setsService.findSetsById(id);
     return AjaxResult.success(result);

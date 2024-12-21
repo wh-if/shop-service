@@ -8,7 +8,9 @@ import {
   Req,
 } from '@nestjs/common';
 import { AjaxResult } from 'src/common/AjaxResult';
+import { USER_ROLE } from 'src/common/constant';
 import { ExpressReqWithUser } from 'src/common/type';
+import { Roles } from 'src/guard/role.guard';
 import { CollectService } from 'src/service/collect.service';
 
 @Controller('collect')
@@ -16,6 +18,7 @@ export class CollectController {
   constructor(private collectService: CollectService) {}
 
   @Get()
+  @Roles([USER_ROLE.USER])
   async getCollectList(@Req() request: ExpressReqWithUser) {
     return AjaxResult.success(
       await this.collectService.getCollectList(request.userInfo.userId),
@@ -23,6 +26,7 @@ export class CollectController {
   }
 
   @Post('/:productId')
+  @Roles([USER_ROLE.USER])
   async addCollect(
     @Param('productId', ParseIntPipe) productId: number,
     @Req() request: ExpressReqWithUser,
@@ -35,6 +39,7 @@ export class CollectController {
   }
 
   @Delete('/:productId')
+  @Roles([USER_ROLE.USER])
   async cancelCollect(
     @Param('productId', ParseIntPipe) productId: number,
     @Req() request: ExpressReqWithUser,

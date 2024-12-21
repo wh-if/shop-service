@@ -17,12 +17,14 @@ import {
   CategoryListOrderDTO,
   CategoryListQueryDTO,
 } from 'src/dto/category.dto';
+import { Public } from 'src/guard/auth.guard';
 
 @Controller('category')
 export class CategoryController {
   constructor(private categoryService: CategoryService) {}
 
   @Get()
+  @Public()
   async getCategoryList(
     @Query('page', ParseIntPipe) page: number,
     @Query('pageSize', ParseIntPipe) pageSize: number,

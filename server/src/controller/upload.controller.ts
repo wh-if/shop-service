@@ -12,10 +12,13 @@ import { diskStorage } from 'multer';
 import { AppConfig } from '../config';
 import { extname } from 'path';
 import { AjaxResult } from 'src/common/AjaxResult';
+import { Roles } from 'src/guard/role.guard';
+import { USER_ROLE } from 'src/common/constant';
 
 @Controller('upload')
 export class UploadController {
   @Post()
+  @Roles([USER_ROLE.USER])
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({

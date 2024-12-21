@@ -17,7 +17,7 @@
 ### todo
 
 - [x] 更新获取列表，需按字段搜索
-- [] 角色授权https://docs.nestjs.com/security/authorization
+- [x] 角色权限，限制用户操作的数据范围
 - [] 全局错误处理
 - [] 参数校验
 

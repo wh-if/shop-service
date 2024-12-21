@@ -24,8 +24,8 @@ export class User {
   password: string;
   @Column({ type: 'enum', enum: USER_STATUS, default: USER_STATUS.ON })
   status: USER_STATUS; // 账号状态
-  @Column({ type: 'enum', enum: USER_ROLE, default: USER_ROLE.USER })
-  role: USER_ROLE; // 账户类型
+  @Column({ type: 'simple-array' })
+  roles: USER_ROLE[]; // 账户拥有的角色类型
   @CreateDateColumn({ type: 'timestamp' })
   createTime: Date;
   @UpdateDateColumn({ type: 'timestamp' })

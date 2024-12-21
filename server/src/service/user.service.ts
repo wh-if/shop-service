@@ -10,6 +10,7 @@ import { DataSource, SelectQueryBuilder } from 'typeorm';
 import { Md5Hash } from 'src/common/util';
 import { ListPageParam } from 'src/common/type';
 import { BaseService } from './base.service';
+import { USER_ROLE } from 'src/common/constant';
 
 @Injectable()
 export class UserService extends BaseService {
@@ -35,9 +36,9 @@ export class UserService extends BaseService {
       .orderBy(order);
 
     this.genWhereSql<User, UserListQueryDTO>(sqlBuilder, 'user', query, {
-      stringType: ['id', 'name', 'telNumber'],
+      stringType: ['id', 'name', 'telNumber', 'roles'],
       timeType: ['createTime', 'lastLoginTime', 'updateTime'],
-      enumType: ['role', 'status'],
+      enumType: ['status'],
       numberType: [],
     });
 
@@ -65,6 +66,7 @@ export class UserService extends BaseService {
     user.telNumber = dto.telNumber;
     user.password = Md5Hash(dto.password);
     user.name = dto.name;
+    user.roles = [USER_ROLE.USER];
 
     return this.userQBuilder.insert().values(user).execute();
   }

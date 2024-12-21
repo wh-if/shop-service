@@ -22,7 +22,7 @@ export type UserListQueryDTO = ListQueryParam<
   | 'createTime'
   | 'lastLoginTime'
   | 'name'
-  | 'role'
+  | 'roles'
   | 'status'
   | 'telNumber'
   | 'updateTime'

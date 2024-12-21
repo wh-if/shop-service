@@ -22,6 +22,8 @@ import {
 import { ExpressReqWithUser } from 'src/common/type';
 import { UserService } from 'src/service/user.service';
 import { USER_ROLE } from 'src/common/constant';
+import { Public } from 'src/guard/auth.guard';
+import { Roles } from 'src/guard/role.guard';
 
 @Controller()
 export class CommentsController {
@@ -31,6 +33,7 @@ export class CommentsController {
   ) {}
 
   @Get('comments')
+  @Public()
   async getCommentsList(
     @Query('page', ParseIntPipe) page: number,
     @Query('pageSize', ParseIntPipe) pageSize: number,
@@ -55,12 +58,13 @@ export class CommentsController {
   }
 
   @Put('comments')
+  @Roles([USER_ROLE.USER])
   async updateComments(
     @Body() dto: CommentsUpdateDTO,
     @Req() request: ExpressReqWithUser,
   ) {
     const user = await this.userService.findUserInfo(request.userInfo.userId);
-    if (dto.status && user.role !== USER_ROLE.ADMIN) {
+    if (dto.status && !user.roles.includes(USER_ROLE.ADMIN)) {
       throw new ForbiddenException('当前用户无权修改评论状态');
     }
 
@@ -69,6 +73,7 @@ export class CommentsController {
   }
 
   @Post('comments')
+  @Roles([USER_ROLE.USER])
   async insertComments(
     @Body() dto: CommentsInsertDTO,
     @Req() request: ExpressReqWithUser,
@@ -81,6 +86,7 @@ export class CommentsController {
   }
 
   @Delete('comments/:id')
+  @Roles([USER_ROLE.USER])
   async deleteComments(@Param('id', ParseIntPipe) id: number) {
     const result = await this.commentsService.deleteComments(id);
     return AjaxResult.success(result);

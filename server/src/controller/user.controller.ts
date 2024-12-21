@@ -21,6 +21,8 @@ import {
 import { AuthService } from 'src/service/auth.service';
 import { Public } from 'src/guard/auth.guard';
 import { ExpressReqWithUser } from 'src/common/type';
+import { Roles } from 'src/guard/role.guard';
+import { USER_ROLE } from 'src/common/constant';
 
 @Controller()
 export class UserController {
@@ -53,6 +55,7 @@ export class UserController {
    * @returns
    */
   @Put('user')
+  @Roles([USER_ROLE.USER])
   async update(@Body() dto: UserUpdateDTO, @Req() request: ExpressReqWithUser) {
     // 修改密码、电话时需要验证码
     if (dto.telNumber || dto.password) {
