@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -18,6 +19,7 @@ import {
   CategoryListQueryDTO,
 } from 'src/dto/category.dto';
 import { Public } from 'src/guard/auth.guard';
+import { Validator } from 'src/common/validator';
 
 @Controller('category')
 export class CategoryController {
@@ -50,12 +52,14 @@ export class CategoryController {
 
   @Put()
   async updateCategory(@Body() dto: CategoryUpdateDTO) {
+    this.validateDTO(dto, 'update');
     const result = await this.categoryService.updateCategory(dto);
     return AjaxResult.success(result);
   }
 
   @Post()
   async insertCategory(@Body() dto: CategoryInsertDTO) {
+    this.validateDTO(dto, 'insert');
     const result = await this.categoryService.insertCategory(dto);
     return AjaxResult.success(result.identifiers);
   }
@@ -64,5 +68,24 @@ export class CategoryController {
   async deleteCategory(@Param('id', ParseIntPipe) id: number) {
     const result = await this.categoryService.deleteCategory(id);
     return AjaxResult.success(result);
+  }
+
+  validateDTO(
+    dto: CategoryInsertDTO | CategoryUpdateDTO,
+    isUpdate: 'insert' | 'update',
+  ) {
+    try {
+      if (isUpdate === 'update') {
+        Validator.required((dto as CategoryUpdateDTO).id, 'id').number();
+        Validator.unRequired(dto.name, 'name').string().max(16);
+      } else {
+        Validator.required(dto.name, 'name').string().max(16);
+      }
+
+      Validator.unRequired(dto.avatar, 'avatar').string().max(255);
+      Validator.unRequired(dto.parentId, 'parentId').number();
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 }
