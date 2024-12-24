@@ -1,10 +1,10 @@
 {
-  "name": "vshop",
+  "name": "shop-service",
   "version": "0.0.1",
   "description": "",
   "author": "",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "ISC",
   "scripts": {
     "gen": "node ./scripts/genTemplate.js",
     "build": "nest build",
