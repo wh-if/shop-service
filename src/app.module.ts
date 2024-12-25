@@ -1,34 +1,38 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './controller/app.controller';
-import { AppService } from './service/app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { SystemService } from './service/system.service';
-import { SystemController } from './controller/system.controller';
 import { AppConfig } from './config';
-import { UploadController } from './controller/upload.controller';
-import { UserService } from './service/user.service';
-import { UserController } from './controller/user.controller';
-import { AuthController } from './controller/auth.controller';
-import { AuthService } from './service/auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './guard/auth.guard';
-import { CategoryService } from './service/category.service';
-import { CategoryController } from './controller/category.controller';
-import { ProductService } from './service/product.service';
-import { ProductController } from './controller/product.controller';
-import { CollectController } from './controller/collect.controller';
-import { CollectService } from './service/collect.service';
-import { SetsService } from './service/sets.service';
-import { SetsController } from './controller/sets.controller';
-import { CouponService } from './service/coupon.service';
-import { CouponController } from './controller/coupon.controller';
-import { CommentsService } from './service/comments.service';
-import { CommentsController } from './controller/comments.controller';
-import { OrderService } from './service/order.service';
-import { OrderController } from './controller/order.controller';
 import { RolesGuard } from './guard/role.guard';
 import { AllExceptionsFilter } from './filter/exception.filter';
+import {
+  AppController,
+  SystemController,
+  UploadController,
+  UserController,
+  AuthController,
+  CategoryController,
+  ProductController,
+  CollectController,
+  SetsController,
+  CouponController,
+  CommentsController,
+  OrderController,
+} from './controller';
+import {
+  AppService,
+  SystemService,
+  UserService,
+  AuthService,
+  CategoryService,
+  ProductService,
+  CollectService,
+  SetsService,
+  CouponService,
+  CommentsService,
+  OrderService,
+} from './service';
 
 @Module({
   imports: [
