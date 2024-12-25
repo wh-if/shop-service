@@ -16,7 +16,7 @@ import {
   CategoryUpdateDTO,
   CategoryListOrderDTO,
   CategoryListQueryDTO,
-  validateDTO,
+  CategoryValidator,
 } from 'src/dto/category.dto';
 import { Public } from 'src/guard/auth.guard';
 
@@ -51,14 +51,21 @@ export class CategoryController {
 
   @Put()
   async updateCategory(@Body() dto: CategoryUpdateDTO) {
-    validateDTO(dto, 'update');
+    CategoryValidator.id.required().check(dto.id);
+    CategoryValidator.name.unRequired().check(dto.name);
+    CategoryValidator.avatar.unRequired().check(dto.avatar);
+    CategoryValidator.parentId.unRequired().check(dto.parentId);
+
     const result = await this.categoryService.updateCategory(dto);
     return AjaxResult.success(result);
   }
 
   @Post()
   async insertCategory(@Body() dto: CategoryInsertDTO) {
-    validateDTO(dto, 'insert');
+    CategoryValidator.name.required().check(dto.name);
+    CategoryValidator.avatar.unRequired().check(dto.avatar);
+    CategoryValidator.parentId.unRequired().check(dto.parentId);
+
     const result = await this.categoryService.insertCategory(dto);
     return AjaxResult.success(result.identifiers);
   }

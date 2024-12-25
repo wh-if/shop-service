@@ -11,7 +11,7 @@ import { UserController } from './controller/user.controller';
 import { AuthController } from './controller/auth.controller';
 import { AuthService } from './service/auth.service';
 import { JwtModule } from '@nestjs/jwt';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './guard/auth.guard';
 import { CategoryService } from './service/category.service';
 import { CategoryController } from './controller/category.controller';
@@ -28,6 +28,7 @@ import { CommentsController } from './controller/comments.controller';
 import { OrderService } from './service/order.service';
 import { OrderController } from './controller/order.controller';
 import { RolesGuard } from './guard/role.guard';
+import { AllExceptionsFilter } from './filter/exception.filter';
 
 @Module({
   imports: [
@@ -70,6 +71,10 @@ import { RolesGuard } from './guard/role.guard';
     {
       provide: APP_GUARD,
       useClass: RolesGuard,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: AllExceptionsFilter,
     },
     AppService,
     SystemService,

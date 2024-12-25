@@ -1,67 +1,87 @@
 export class Validator {
-  target: any;
   key: string;
-  private skip: boolean;
+  stack: Array<(target: any) => void>;
+  skip: boolean;
 
-  constructor(target: any, key: string = '', skipUndef: boolean = false) {
-    this.target = target;
+  constructor(key: string = '') {
     this.key = key;
-    this.skip = skipUndef;
+    this.stack = [];
+    this.skip = false;
   }
 
-  static validate(target: any) {
-    return new Validator(target);
+  static validate(key?: string) {
+    return new Validator(key);
   }
 
-  static required(target: any, key: string) {
-    if (typeof target === 'undefined') {
-      throw new Error(`验证不通过: ${key}缺失`);
-    }
-
-    return new Validator(target, key);
+  required() {
+    this.stack.unshift((target) => {
+      if (typeof target === 'undefined') {
+        throw new Error(`Validation Failed: ${this.key}缺失`);
+      }
+    });
+    return this;
   }
 
-  static unRequired(target: any, key: string) {
-    let skip = false;
-    if (typeof target === 'undefined') {
-      skip = true;
-    }
+  unRequired() {
+    this.stack.unshift((target) => {
+      if (typeof target === 'undefined') {
+        this.skip = true;
+        return;
+      }
+    });
+    return this;
+  }
 
-    return new Validator(target, key, skip);
+  check(target: any) {
+    this.stack.forEach((fn) => {
+      if (this.skip) {
+        return;
+      }
+      fn(target);
+    });
+    return this;
   }
 
   number() {
-    if (!this.skip && typeof this.target !== 'number') {
-      throw new Error(`验证不通过: ${this.key}需要是 number 类型`);
-    }
+    this.stack.push((target) => {
+      if (typeof target !== 'number') {
+        throw new Error(`Validation Failed: ${this.key}需要是 number 类型`);
+      }
+    });
 
     return this;
   }
 
   string() {
-    if (!this.skip && typeof this.target !== 'string') {
-      throw new Error(`验证不通过: ${this.key}需要是 string 类型`);
-    }
+    this.stack.push((target) => {
+      if (typeof target !== 'string') {
+        throw new Error(`Validation Failed: ${this.key}需要是 string 类型`);
+      }
+    });
 
     return this;
   }
 
   min(limit: number) {
-    if (!this.skip && typeof this.target === 'number' && this.target < limit) {
-      throw new Error(`验证不通过: ${this.key}需要大于 ${limit}`);
-    } else if (typeof this.target === 'string' && this.target.length < limit) {
-      throw new Error(`验证不通过: ${this.key}长度需要大于 ${limit}`);
-    }
+    this.stack.push((target) => {
+      if (typeof target === 'number' && target < limit) {
+        throw new Error(`Validation Failed: ${this.key}需要大于 ${limit}`);
+      } else if (typeof target === 'string' && target.length < limit) {
+        throw new Error(`Validation Failed: ${this.key}长度需要大于 ${limit}`);
+      }
+    });
 
     return this;
   }
 
   max(limit: number) {
-    if (!this.skip && typeof this.target === 'number' && this.target > limit) {
-      throw new Error(`验证不通过: ${this.key}需要小于 ${limit}`);
-    } else if (typeof this.target === 'string' && this.target.length > limit) {
-      throw new Error(`验证不通过: ${this.key}长度需要小于 ${limit}`);
-    }
+    this.stack.push((target) => {
+      if (typeof target === 'number' && target > limit) {
+        throw new Error(`Validation Failed: ${this.key}需要小于 ${limit}`);
+      } else if (typeof target === 'string' && target.length > limit) {
+        throw new Error(`Validation Failed: ${this.key}长度需要小于 ${limit}`);
+      }
+    });
 
     return this;
   }
