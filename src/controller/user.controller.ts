@@ -1,7 +1,9 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   Param,
   ParseIntPipe,
@@ -49,6 +51,28 @@ export class UserController {
     return AjaxResult.success(result);
   }
 
+  @Get('user/info')
+  @Roles([USER_ROLE.USER])
+  async getUserInfo(
+    @Query('userId') id: string,
+    @Req() request: ExpressReqWithUser,
+  ) {
+    const { userId, roles } = request.userInfo;
+    let targetId = userId;
+
+    if (id && roles.includes(USER_ROLE.ADMIN)) {
+      targetId = parseInt(id);
+      if (isNaN(userId)) {
+        throw new BadRequestException('用户ID不正确, 请重新确认。');
+      }
+    }
+
+    const { password, ...result } =
+      await this.userService.findUserInfo(targetId);
+
+    return AjaxResult.success(result);
+  }
+
   /**
    * 更新用户信息
    * @param dto
@@ -57,6 +81,12 @@ export class UserController {
   @Put('user')
   @Roles([USER_ROLE.USER])
   async update(@Body() dto: UserUpdateDTO, @Req() request: ExpressReqWithUser) {
+    if (dto.roles || dto.status) {
+      if (!request.userInfo.roles.includes(USER_ROLE.ADMIN)) {
+        throw new ForbiddenException('修改用户角色和状态需要管理员权限。');
+      }
+    }
+
     // 修改密码、电话时需要验证码
     if (dto.telNumber || dto.password) {
       // 检验验证码

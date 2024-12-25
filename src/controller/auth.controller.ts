@@ -10,19 +10,22 @@ export class AuthController {
   constructor(private authService: AuthService) {}
   /**
    * 获取验证码
-   * @param key // 电话
+   * @param telNumber // 电话
    */
   @Public()
   @Get('code')
-  getAuthCode(@Query('key') key: string, @Req() request: ExpressReqWithUser) {
+  getAuthCode(
+    @Query('telNumber') telNumber: string,
+    @Req() request: ExpressReqWithUser,
+  ) {
     // 如果已经登录则给登录的号码发
     if (!!request.userInfo?.telNumber) {
-      key = request.userInfo.telNumber;
+      telNumber = request.userInfo.telNumber;
     }
-    if (!key) {
-      return AjaxResult.fail('参数key不能为空。');
+    if (!telNumber) {
+      return AjaxResult.fail('参数telNumber不能为空。');
     }
-    const code = this.authService.getAuthCode(key);
+    const code = this.authService.getAuthCode(telNumber);
     return AjaxResult.success('验证码已发送！', { code });
   }
 

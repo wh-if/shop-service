@@ -65,12 +65,11 @@ export class AuthService {
   async login(dto: LoginDTO) {
     // 获取用户
     const user = await this.userService.findUserInfo(dto.telNumber);
-    const { password, ...userInfo } = user;
 
     if (!user) {
       return '用户不存在，请确认手机号正确。';
     }
-
+    const { password, ...userInfo } = user;
     // 登录校验
     if (!!dto.authcode) {
       // 如果存在authcode，优先用它登录
