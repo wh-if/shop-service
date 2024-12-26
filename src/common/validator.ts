@@ -85,4 +85,34 @@ export class Validator {
 
     return this;
   }
+
+  exact(value: number) {
+    this.stack.push((target) => {
+      if (typeof target === 'number' && target !== value) {
+        throw new Error(`Validation Failed: ${this.key}需要是 ${value}`);
+      } else if (typeof target === 'string' && target.length !== value) {
+        throw new Error(`Validation Failed: ${this.key}长度需要是 ${value}`);
+      }
+    });
+
+    return this;
+  }
+
+  enum(enumObj: object | [object]) {
+    this.stack.push((target) => {
+      if (Array.isArray(enumObj)) {
+        (target as []).forEach((item) => {
+          if (!Object.values(enumObj[0]).includes(item)) {
+            throw new Error(`Validation Failed: ${this.key}不是可用值`);
+          }
+        });
+      } else {
+        if (!Object.values(enumObj).includes(target)) {
+          throw new Error(`Validation Failed: ${this.key}不是可用值`);
+        }
+      }
+    });
+
+    return this;
+  }
 }

@@ -19,6 +19,7 @@ import {
   UserListOrderDTO,
   UserListQueryDTO,
   UserUpdateDTO,
+  UserValidator,
 } from 'src/dto/user.dto';
 import { AuthService } from 'src/service/auth.service';
 import { Public } from 'src/guard/auth.guard';
@@ -81,8 +82,20 @@ export class UserController {
   @Put('user')
   @Roles([USER_ROLE.USER])
   async update(@Body() dto: UserUpdateDTO, @Req() request: ExpressReqWithUser) {
+    UserValidator.name.unRequired().check(dto.name);
+    UserValidator.authcode.unRequired().check(dto.authcode);
+    UserValidator.password.unRequired().check(dto.password);
+    UserValidator.telNumber.unRequired().check(dto.telNumber);
+    UserValidator.avatar.unRequired().check(dto.avatar);
+    UserValidator.id.unRequired().check(dto.id);
+    UserValidator.status.unRequired().check(dto.status);
+    UserValidator.roles.unRequired().check(dto.roles);
+
+    const userIsAdmin = request.userInfo.roles.includes(USER_ROLE.ADMIN);
+    const curUserId = request.userInfo.userId;
+
     if (dto.roles || dto.status) {
-      if (!request.userInfo.roles.includes(USER_ROLE.ADMIN)) {
+      if (!userIsAdmin) {
         throw new ForbiddenException('修改用户角色和状态需要管理员权限。');
       }
     }
@@ -100,10 +113,10 @@ export class UserController {
       }
     }
 
-    const result = await this.userService.update(dto, request.userInfo.userId);
-    if (typeof result === 'string') {
-      return AjaxResult.fail(result);
-    }
+    const result = await this.userService.update(
+      dto,
+      userIsAdmin ? dto.id || curUserId : curUserId,
+    );
     return AjaxResult.success(result);
   }
 
@@ -116,6 +129,11 @@ export class UserController {
   @Public()
   @Post('register')
   async register(@Body() dto: UserInsertDTO) {
+    UserValidator.name.required().check(dto.name);
+    UserValidator.authcode.required().check(dto.authcode);
+    UserValidator.password.required().check(dto.password);
+    UserValidator.telNumber.required().check(dto.telNumber);
+
     // 检验验证码
     if (!this.authService.checkAuthCode(dto.telNumber, dto.authcode)) {
       return AjaxResult.fail('验证码错误或已过期！');
@@ -134,6 +152,7 @@ export class UserController {
   @Public()
   @Get('register/check')
   async checkIfRegister(@Query('telNumber') telNumber: string) {
+    UserValidator.telNumber.required().check(telNumber);
     const result = await this.userService.findUserInfo(telNumber);
     return AjaxResult.success({ hasRegister: !!result });
   }
