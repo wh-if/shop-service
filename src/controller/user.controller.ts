@@ -15,7 +15,6 @@ import { AjaxResult } from 'src/common/AjaxResult';
 import { UserService } from 'src/service/user.service';
 import {
   UserInsertDTO,
-  UserListOrderDTO,
   UserListQueryDTO,
   UserUpdateDTO,
   UserValidator,
@@ -37,17 +36,12 @@ export class UserController {
   async getList(
     @Query('page', ParseIntPipe) page: number,
     @Query('pageSize', ParseIntPipe) pageSize: number,
-    @Query('order') order: UserListOrderDTO,
     @Query('query') query: UserListQueryDTO,
   ) {
-    const result = await this.userService.getUserList(
-      query ?? {},
-      order ?? {},
-      {
-        page,
-        pageSize,
-      },
-    );
+    const result = await this.userService.getUserList(query ?? {}, {
+      page,
+      pageSize,
+    });
     return AjaxResult.success(result);
   }
 

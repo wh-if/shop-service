@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { User } from 'src/entity/user.entity';
 import {
   UserInsertDTO,
-  UserListOrderDTO,
   UserListQueryDTO,
   UserUpdateDTO,
 } from 'src/dto/user.dto';
@@ -25,15 +24,13 @@ export class UserService extends BaseService {
     return this.dataSource.createQueryBuilder(User, 'user');
   }
 
-  async getUserList(
-    query: UserListQueryDTO,
-    order: UserListOrderDTO,
-    page: ListPageParam,
-  ) {
+  async getUserList(query: UserListQueryDTO, page: ListPageParam) {
     const sqlBuilder = this.userQBuilder
       .limit(page.pageSize)
-      .offset((page.page - 1) * page.pageSize)
-      .orderBy(order);
+      .offset((page.page - 1) * page.pageSize);
+    if (query.orderBy && query.order) {
+      sqlBuilder.orderBy({ [query.orderBy]: query.order });
+    }
 
     this.genWhereSql<User, UserListQueryDTO>(sqlBuilder, 'user', query, {
       stringType: ['id', 'name', 'telNumber', 'roles'],

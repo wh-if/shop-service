@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { Configuration } from 'src/entity/configuration.entity';
 import {
   ConfigurationInsertDTO,
-  ConfigurationListOrderDTO,
   ConfigurationListQueryDTO,
   ConfigurationUpdateDTO,
 } from 'src/dto/system.dto';
@@ -23,23 +22,12 @@ export class SystemService extends BaseService {
     return this.dataSource.createQueryBuilder(Configuration, 'configuration');
   }
 
-  async getConfigList(
-    query: ConfigurationListQueryDTO,
-    order: ConfigurationListOrderDTO,
-    page: ListPageParam,
-  ) {
+  async getConfigList(query: ConfigurationListQueryDTO, page: ListPageParam) {
     const sqlBuilder = this.configQBuilder
       .limit(page.pageSize)
-      .offset((page.page - 1) * page.pageSize)
-      .orderBy(order);
-
-    if (!!query.id) {
-      sqlBuilder.andWhere('configuration.id LIKE :id', { id: `%${query.id}%` });
-    }
-    if (!!query.key) {
-      sqlBuilder.andWhere('configuration.key LIKE :key', {
-        key: `%${query.key}%`,
-      });
+      .offset((page.page - 1) * page.pageSize);
+    if (query.orderBy && query.order) {
+      sqlBuilder.orderBy({ [query.orderBy]: query.order });
     }
 
     this.genWhereSql<Configuration, ConfigurationListQueryDTO>(

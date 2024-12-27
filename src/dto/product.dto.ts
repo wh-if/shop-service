@@ -1,4 +1,4 @@
-import { ListOrderType, ListQueryParam } from 'src/common/type';
+import { ListQueryParam } from 'src/common/type';
 import { Product } from 'src/entity/product.entity';
 import { ProductOption } from 'src/entity/product_option.entity';
 
@@ -21,11 +21,6 @@ export type ProductInsertDTO = Pick<
 export type ProductListQueryDTO = ListQueryParam<
   Product,
   'id' | 'name' | 'categoryId' | 'status' | 'createTime' | 'updateTime'
->;
-
-export type ProductListOrderDTO = ListOrderType<
-  Product,
-  'id' | 'createTime' | 'updateTime'
 >;
 
 export type ProductOptionInsertDTO = Pick<

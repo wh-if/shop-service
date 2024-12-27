@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Product } from 'src/entity/product.entity';
 import {
-  ProductListOrderDTO,
   ProductListQueryDTO,
   ProductInsertDTO,
   ProductUpdateDTO,
@@ -23,18 +22,14 @@ export class ProductService extends BaseService {
     return this.dataSource.createQueryBuilder(Product, 'product');
   }
 
-  async getProductList(
-    query: ProductListQueryDTO,
-    order: ProductListOrderDTO,
-    page: ListPageParam,
-  ) {
+  async getProductList(query: ProductListQueryDTO, page: ListPageParam) {
     const sqlBuilder = this.productQBuilder
       .limit(page.pageSize)
       .offset((page.page - 1) * page.pageSize);
 
-    Object.keys(order).forEach((item) => {
-      sqlBuilder.addOrderBy(`product.${item}`, order[item]);
-    });
+    if (query.orderBy && query.order) {
+      sqlBuilder.orderBy(`product.${query.orderBy}`, query.order);
+    }
 
     this.genWhereSql<Product, ProductListQueryDTO>(
       sqlBuilder,

@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Sets } from 'src/entity/sets.entity';
 import {
-  SetsListOrderDTO,
   SetsListQueryDTO,
   SetsInsertDTO,
   SetsUpdateDTO,
@@ -21,15 +20,13 @@ export class SetsService extends BaseService {
     return this.dataSource.createQueryBuilder(Sets, 'sets');
   }
 
-  async getSetsList(
-    query: SetsListQueryDTO,
-    order: SetsListOrderDTO,
-    page: ListPageParam,
-  ) {
+  async getSetsList(query: SetsListQueryDTO, page: ListPageParam) {
     const sqlBuilder = this.setsQBuilder
       .limit(page.pageSize)
-      .offset((page.page - 1) * page.pageSize)
-      .orderBy(order);
+      .offset((page.page - 1) * page.pageSize);
+    if (query.orderBy && query.order) {
+      sqlBuilder.orderBy({ [query.orderBy]: query.order });
+    }
 
     this.genWhereSql<Sets, SetsListQueryDTO>(sqlBuilder, 'sets', query, {
       stringType: ['id', 'name'],

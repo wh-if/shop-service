@@ -15,7 +15,6 @@ import { CategoryService } from 'src/service/category.service';
 import {
   CategoryInsertDTO,
   CategoryUpdateDTO,
-  CategoryListOrderDTO,
   CategoryListQueryDTO,
   CategoryValidator,
 } from 'src/dto/category.dto';
@@ -30,17 +29,12 @@ export class CategoryController {
   async getCategoryList(
     @Query('page', ParseIntPipe) page: number,
     @Query('pageSize', ParseIntPipe) pageSize: number,
-    @Query('order') order: CategoryListOrderDTO,
     @Query('query') query: CategoryListQueryDTO,
   ) {
-    const result = await this.categoryService.getCategoryList(
-      query ?? {},
-      order ?? {},
-      {
-        page,
-        pageSize,
-      },
-    );
+    const result = await this.categoryService.getCategoryList(query ?? {}, {
+      page,
+      pageSize,
+    });
     return AjaxResult.success(result);
   }
 

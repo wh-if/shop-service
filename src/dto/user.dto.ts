@@ -1,5 +1,5 @@
 import { USER_ROLE, USER_STATUS } from 'src/common/constant';
-import { ListOrderType, ListQueryParam } from 'src/common/type';
+import { ListQueryParam } from 'src/common/type';
 import { Validator } from 'src/common/validator';
 import { User } from 'src/entity/user.entity';
 
@@ -28,11 +28,6 @@ export type UserListQueryDTO = ListQueryParam<
   | 'status'
   | 'telNumber'
   | 'updateTime'
->;
-
-export type UserListOrderDTO = ListOrderType<
-  User,
-  'id' | 'createTime' | 'lastLoginTime' | 'updateTime'
 >;
 
 export const UserValidator: Partial<

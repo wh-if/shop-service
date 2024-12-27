@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Comments } from 'src/entity/comments.entity';
 import {
-  CommentsListOrderDTO,
   CommentsListQueryDTO,
   CommentsInsertDTO,
   CommentsUpdateDTO,
@@ -20,15 +19,13 @@ export class CommentsService extends BaseService {
     return this.dataSource.createQueryBuilder(Comments, 'comments');
   }
 
-  async getCommentsList(
-    query: CommentsListQueryDTO,
-    order: CommentsListOrderDTO,
-    page: ListPageParam,
-  ) {
+  async getCommentsList(query: CommentsListQueryDTO, page: ListPageParam) {
     const sqlBuilder = this.commentsQBuilder
       .limit(page.pageSize)
-      .offset((page.page - 1) * page.pageSize)
-      .orderBy(order);
+      .offset((page.page - 1) * page.pageSize);
+    if (query.orderBy && query.order) {
+      sqlBuilder.orderBy({ [query.orderBy]: query.order });
+    }
 
     this.genWhereSql<Comments, CommentsListQueryDTO>(
       sqlBuilder,

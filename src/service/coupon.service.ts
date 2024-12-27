@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Coupon } from 'src/entity/coupon.entity';
 import {
-  CouponListOrderDTO,
   CouponListQueryDTO,
   CouponInsertDTO,
   CouponUpdateDTO,
@@ -22,15 +21,13 @@ export class CouponService extends BaseService {
     return this.dataSource.createQueryBuilder(Coupon, 'coupon');
   }
 
-  async getCouponList(
-    query: CouponListQueryDTO,
-    order: CouponListOrderDTO,
-    page: ListPageParam,
-  ) {
+  async getCouponList(query: CouponListQueryDTO, page: ListPageParam) {
     const sqlBuilder = this.couponQBuilder
       .limit(page.pageSize)
-      .offset((page.page - 1) * page.pageSize)
-      .orderBy(order);
+      .offset((page.page - 1) * page.pageSize);
+    if (query.orderBy && query.order) {
+      sqlBuilder.orderBy({ [query.orderBy]: query.order });
+    }
 
     this.genWhereSql<Coupon, CouponListQueryDTO>(sqlBuilder, 'coupon', query, {
       stringType: ['id'],

@@ -15,10 +15,9 @@ export interface ListPageParam {
   pageSize: number;
 }
 
-export type ListOrderType<T, G extends keyof T> = Partial<
-  Record<G, 'DESC' | 'ASC'>
->;
-
 export type ListQueryParam<T, G extends keyof T> = Partial<
-  Record<G, string | string[] | number[]>
+  Record<G, string | string[] | number[]> & {
+    orderBy: G;
+    order: 'DESC' | 'ASC';
+  }
 >;

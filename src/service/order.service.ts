@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Order } from 'src/entity/order.entity';
 import {
-  OrderListOrderDTO,
   OrderListQueryDTO,
   OrderInsertDTO,
   OrderDetailInsertDTO,
@@ -37,15 +36,13 @@ export class OrderService extends BaseService {
     return this.dataSource.createQueryBuilder(Order, 'order');
   }
 
-  async getOrderList(
-    query: OrderListQueryDTO,
-    order: OrderListOrderDTO,
-    page: ListPageParam,
-  ) {
+  async getOrderList(query: OrderListQueryDTO, page: ListPageParam) {
     const sqlBuilder = this.orderQBuilder
       .limit(page.pageSize)
-      .offset((page.page - 1) * page.pageSize)
-      .orderBy(order);
+      .offset((page.page - 1) * page.pageSize);
+    if (query.orderBy && query.order) {
+      sqlBuilder.orderBy({ [query.orderBy]: query.order });
+    }
 
     this.genWhereSql<Order, OrderListQueryDTO>(sqlBuilder, 'order', query, {
       stringType: ['id'],

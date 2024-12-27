@@ -15,7 +15,6 @@ import { SetsService } from 'src/service/sets.service';
 import {
   SetsInsertDTO,
   SetsUpdateDTO,
-  SetsListOrderDTO,
   SetsListQueryDTO,
 } from 'src/dto/sets.dto';
 import { Public } from 'src/guard/auth.guard';
@@ -29,18 +28,13 @@ export class SetsController {
   async getSetsList(
     @Query('page', ParseIntPipe) page: number,
     @Query('pageSize', ParseIntPipe) pageSize: number,
-    @Query('order') order: SetsListOrderDTO,
     @Query('query') query: SetsListQueryDTO,
   ) {
     console.log(query);
-    const result = await this.setsService.getSetsList(
-      query ?? {},
-      order ?? {},
-      {
-        page,
-        pageSize,
-      },
-    );
+    const result = await this.setsService.getSetsList(query ?? {}, {
+      page,
+      pageSize,
+    });
     return AjaxResult.success(result);
   }
 

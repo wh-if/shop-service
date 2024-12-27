@@ -14,7 +14,6 @@ import { AjaxResult } from 'src/common/AjaxResult';
 import { SystemService } from 'src/service/system.service';
 import {
   ConfigurationInsertDTO,
-  ConfigurationListOrderDTO,
   ConfigurationListQueryDTO,
   ConfigurationUpdateDTO,
 } from 'src/dto/system.dto';
@@ -29,17 +28,12 @@ export class SystemController {
   async getConfigList(
     @Query('page', ParseIntPipe) page: number,
     @Query('pageSize', ParseIntPipe) pageSize: number,
-    @Query('order') order: ConfigurationListOrderDTO,
     @Query('query') query: ConfigurationListQueryDTO,
   ) {
-    const result = await this.systemService.getConfigList(
-      query ?? {},
-      order ?? {},
-      {
-        page,
-        pageSize,
-      },
-    );
+    const result = await this.systemService.getConfigList(query ?? {}, {
+      page,
+      pageSize,
+    });
     return AjaxResult.success(result);
   }
 

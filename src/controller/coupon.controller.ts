@@ -16,7 +16,6 @@ import { CouponService } from 'src/service/coupon.service';
 import {
   CouponInsertDTO,
   CouponUpdateDTO,
-  CouponListOrderDTO,
   CouponListQueryDTO,
 } from 'src/dto/coupon.dto';
 import { ExpressReqWithUser } from 'src/common/type';
@@ -33,17 +32,12 @@ export class CouponController {
   async getCouponList(
     @Query('page', ParseIntPipe) page: number,
     @Query('pageSize', ParseIntPipe) pageSize: number,
-    @Query('order') order: CouponListOrderDTO,
     @Query('query') query: CouponListQueryDTO,
   ) {
-    const result = await this.couponService.getCouponList(
-      query ?? {},
-      order ?? {},
-      {
-        page,
-        pageSize,
-      },
-    );
+    const result = await this.couponService.getCouponList(query ?? {}, {
+      page,
+      pageSize,
+    });
     return AjaxResult.success(result);
   }
 

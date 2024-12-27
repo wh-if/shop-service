@@ -1,4 +1,4 @@
-import { ListOrderType, ListQueryParam } from 'src/common/type';
+import { ListQueryParam } from 'src/common/type';
 import { Sets } from 'src/entity/sets.entity';
 
 export type SetsUpdateDTO = Pick<
@@ -14,9 +14,4 @@ export type SetsInsertDTO = Pick<
 export type SetsListQueryDTO = ListQueryParam<
   Sets,
   'id' | 'endDate' | 'name' | 'type' | 'startDate' | 'createDate'
->;
-
-export type SetsListOrderDTO = ListOrderType<
-  Sets,
-  'id' | 'createDate' | 'endDate' | 'startDate'
 >;

@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Category } from 'src/entity/category.entity';
 import {
-  CategoryListOrderDTO,
   CategoryListQueryDTO,
   CategoryInsertDTO,
   CategoryUpdateDTO,
@@ -20,15 +19,13 @@ export class CategoryService extends BaseService {
     return this.dataSource.createQueryBuilder(Category, 'category');
   }
 
-  async getCategoryList(
-    query: CategoryListQueryDTO,
-    order: CategoryListOrderDTO,
-    page: ListPageParam,
-  ) {
+  async getCategoryList(query: CategoryListQueryDTO, page: ListPageParam) {
     const sqlBuilder = this.categoryQBuilder
       .limit(page.pageSize)
-      .offset((page.page - 1) * page.pageSize)
-      .orderBy(order);
+      .offset((page.page - 1) * page.pageSize);
+    if (query.orderBy && query.order) {
+      sqlBuilder.orderBy({ [query.orderBy]: query.order });
+    }
 
     this.genWhereSql<Category, CategoryListQueryDTO>(
       sqlBuilder,

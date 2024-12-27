@@ -14,7 +14,6 @@ import { AjaxResult } from 'src/common/AjaxResult';
 import { OrderService } from 'src/service/order.service';
 import {
   OrderInsertDTO,
-  OrderListOrderDTO,
   OrderListQueryDTO,
   OrderStatusChangeDTO,
   OrderPayDTO,
@@ -36,17 +35,12 @@ export class OrderController {
   async getOrderList(
     @Query('page', ParseIntPipe) page: number,
     @Query('pageSize', ParseIntPipe) pageSize: number,
-    @Query('order') order: OrderListOrderDTO,
     @Query('query') query: OrderListQueryDTO,
   ) {
-    const result = await this.orderService.getOrderList(
-      query ?? {},
-      order ?? {},
-      {
-        page,
-        pageSize,
-      },
-    );
+    const result = await this.orderService.getOrderList(query ?? {}, {
+      page,
+      pageSize,
+    });
     return AjaxResult.success(result);
   }
 

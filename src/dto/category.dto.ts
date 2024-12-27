@@ -1,4 +1,4 @@
-import { ListOrderType, ListQueryParam } from 'src/common/type';
+import { ListQueryParam } from 'src/common/type';
 import { Validator } from 'src/common/validator';
 import { Category } from 'src/entity/category.entity';
 
@@ -10,8 +10,6 @@ export type CategoryListQueryDTO = ListQueryParam<
   Category,
   'id' | 'name' | 'parentId'
 >;
-
-export type CategoryListOrderDTO = ListOrderType<Category, 'id'>;
 
 export const CategoryValidator: Partial<Record<keyof Category, Validator>> = {
   avatar: Validator.validate('avatar').string().max(255),

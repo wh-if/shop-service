@@ -15,7 +15,6 @@ import { ProductService } from 'src/service/product.service';
 import {
   ProductInsertDTO,
   ProductUpdateDTO,
-  ProductListOrderDTO,
   ProductListQueryDTO,
   ProductOptionInsertDTO,
   ProductOptionUpdateDTO,
@@ -31,17 +30,12 @@ export class ProductController {
   async getProductList(
     @Query('page', ParseIntPipe) page: number,
     @Query('pageSize', ParseIntPipe) pageSize: number,
-    @Query('order') order: ProductListOrderDTO,
     @Query('query') query: ProductListQueryDTO,
   ) {
-    const result = await this.productService.getProductList(
-      query ?? {},
-      order ?? {},
-      {
-        page,
-        pageSize,
-      },
-    );
+    const result = await this.productService.getProductList(query ?? {}, {
+      page,
+      pageSize,
+    });
     return AjaxResult.success(result);
   }
 

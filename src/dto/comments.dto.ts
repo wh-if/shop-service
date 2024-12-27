@@ -1,4 +1,4 @@
-import { ListOrderType, ListQueryParam } from 'src/common/type';
+import { ListQueryParam } from 'src/common/type';
 import { Comments } from 'src/entity/comments.entity';
 
 export type CommentsUpdateDTO = Pick<
@@ -21,9 +21,4 @@ export type CommentsListQueryDTO = ListQueryParam<
   | 'updateTime'
   | 'star'
   | 'status'
->;
-
-export type CommentsListOrderDTO = ListOrderType<
-  Comments,
-  'id' | 'createTime' | 'updateTime' | 'star'
 >;

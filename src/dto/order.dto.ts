@@ -1,4 +1,4 @@
-import { ListOrderType, ListQueryParam } from 'src/common/type';
+import { ListQueryParam } from 'src/common/type';
 import { Order } from 'src/entity/order.entity';
 import { OrderDetail } from 'src/entity/order_detail.entity';
 
@@ -27,9 +27,4 @@ export type OrderListQueryDTO = ListQueryParam<
   | 'payTime'
   | 'status'
   | 'userId'
->;
-
-export type OrderListOrderDTO = ListOrderType<
-  Order,
-  'id' | 'createTime' | 'finishTime' | 'payAmount' | 'payTime'
 >;

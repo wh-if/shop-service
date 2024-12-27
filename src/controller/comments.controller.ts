@@ -17,7 +17,6 @@ import { CommentsService } from 'src/service/comments.service';
 import {
   CommentsInsertDTO,
   CommentsUpdateDTO,
-  CommentsListOrderDTO,
   CommentsListQueryDTO,
 } from 'src/dto/comments.dto';
 import { ExpressReqWithUser } from 'src/common/type';
@@ -38,17 +37,12 @@ export class CommentsController {
   async getCommentsList(
     @Query('page', ParseIntPipe) page: number,
     @Query('pageSize', ParseIntPipe) pageSize: number,
-    @Query('order') order: CommentsListOrderDTO,
     @Query('query') query: CommentsListQueryDTO,
   ) {
-    const result = await this.commentsService.getCommentsList(
-      query ?? {},
-      order ?? {},
-      {
-        page,
-        pageSize,
-      },
-    );
+    const result = await this.commentsService.getCommentsList(query ?? {}, {
+      page,
+      pageSize,
+    });
     return AjaxResult.success(result);
   }
 
