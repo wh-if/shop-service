@@ -101,7 +101,10 @@ export class SetsService extends BaseService {
     return true;
   }
 
-  deleteSets(id: number) {
-    return this.setsQBuilder.delete().where({ id }).execute();
+  deleteSets(ids: number[]) {
+    return this.setsQBuilder
+      .delete()
+      .where('id IN (:...ids)', { ids })
+      .execute();
   }
 }

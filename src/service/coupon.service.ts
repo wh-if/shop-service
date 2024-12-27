@@ -108,15 +108,18 @@ export class CouponService extends BaseService {
     return true;
   }
 
-  async deleteCoupon(id: number) {
+  async deleteCoupon(ids: number[]) {
     // 同时删除领取记录
     await this.dataSource
       .createQueryBuilder(ReceivedCoupon, 'received_coupon')
       .delete()
-      .where('couponId = :id', { id })
+      .where('couponId IN (:...ids)', { ids })
       .execute();
 
-    await this.couponQBuilder.delete().where({ id }).execute();
+    await this.couponQBuilder
+      .delete()
+      .where('id IN (:...ids)', { ids })
+      .execute();
   }
 
   /**

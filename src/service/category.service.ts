@@ -70,7 +70,10 @@ export class CategoryService extends BaseService {
       .execute();
   }
 
-  deleteCategory(id: number) {
-    return this.categoryQBuilder.delete().where({ id }).execute();
+  deleteCategory(ids: number[]) {
+    return this.categoryQBuilder
+      .delete()
+      .where('id IN (:...ids)', { ids })
+      .execute();
   }
 }

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -64,9 +65,14 @@ export class CouponController {
     return result ? AjaxResult.success() : AjaxResult.fail();
   }
 
-  @Delete('coupon/:id')
-  async deleteCoupon(@Param('id', ParseIntPipe) id: number) {
-    await this.couponService.deleteCoupon(id);
+  @Delete('coupon')
+  async deleteCoupon(@Query('ids') ids: (string | number)[]) {
+    try {
+      ids = ids.map((id) => parseInt(id as string));
+    } catch {
+      throw new BadRequestException('Validation Failed: id 不合法');
+    }
+    await this.couponService.deleteCoupon(ids as number[]);
     return AjaxResult.success();
   }
 

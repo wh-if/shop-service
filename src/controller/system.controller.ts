@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -60,9 +61,14 @@ export class SystemController {
     return AjaxResult.success(result.identifiers);
   }
 
-  @Delete('config/:id')
-  async deleteConfig(@Param('id', ParseIntPipe) id: number) {
-    const result = await this.systemService.deleteConfig(id);
+  @Delete('config')
+  async deleteConfig(@Query('ids') ids: (string | number)[]) {
+    try {
+      ids = ids.map((id) => parseInt(id as string));
+    } catch {
+      throw new BadRequestException('Validation Failed: id 不合法');
+    }
+    const result = await this.systemService.deleteConfig(ids as number[]);
     return AjaxResult.success(result);
   }
 }

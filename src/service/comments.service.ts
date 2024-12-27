@@ -69,7 +69,10 @@ export class CommentsService extends BaseService {
       .execute();
   }
 
-  deleteComments(id: number) {
-    return this.commentsQBuilder.delete().where({ id }).execute();
+  deleteComments(ids: number[]) {
+    return this.commentsQBuilder
+      .delete()
+      .where('id IN (:...ids)', { ids })
+      .execute();
   }
 }

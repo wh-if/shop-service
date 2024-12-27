@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -85,10 +86,15 @@ export class CommentsController {
     return AjaxResult.success(result.identifiers);
   }
 
-  @Delete('comments/:id')
+  @Delete('comments')
   @Roles([USER_ROLE.USER])
-  async deleteComments(@Param('id', ParseIntPipe) id: number) {
-    const result = await this.commentsService.deleteComments(id);
+  async deleteComments(@Query('ids') ids: (string | number)[]) {
+    try {
+      ids = ids.map((id) => parseInt(id as string));
+    } catch {
+      throw new BadRequestException('Validation Failed: id 不合法');
+    }
+    const result = await this.commentsService.deleteComments(ids as number[]);
     return AjaxResult.success(result);
   }
 }

@@ -77,8 +77,11 @@ export class ProductService extends BaseService {
       .execute();
   }
 
-  deleteProduct(id: number) {
-    return this.productQBuilder.delete().where({ id }).execute();
+  deleteProduct(ids: number[]) {
+    return this.productQBuilder
+      .delete()
+      .where('id IN (:...ids)', { ids })
+      .execute();
   }
 
   /**
@@ -120,11 +123,11 @@ export class ProductService extends BaseService {
    * @param poId
    * @returns
    */
-  deleteProductOption(poId: number) {
+  deleteProductOption(ids: number[]) {
     return this.dataSource
       .createQueryBuilder(ProductOption, 'product_option')
       .delete()
-      .where({ id: poId })
+      .where('id IN (:...ids)', { ids })
       .execute();
   }
 }

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -62,9 +63,14 @@ export class SetsController {
     return result ? AjaxResult.success() : AjaxResult.fail();
   }
 
-  @Delete('/:id')
-  async deleteSets(@Param('id', ParseIntPipe) id: number) {
-    const result = await this.setsService.deleteSets(id);
+  @Delete()
+  async deleteSets(@Query('ids') ids: (string | number)[]) {
+    try {
+      ids = ids.map((id) => parseInt(id as string));
+    } catch {
+      throw new BadRequestException('Validation Failed: id 不合法');
+    }
+    const result = await this.setsService.deleteSets(ids as number[]);
     return AjaxResult.success(result);
   }
 }

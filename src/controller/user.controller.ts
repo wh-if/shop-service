@@ -5,7 +5,6 @@ import {
   Delete,
   ForbiddenException,
   Get,
-  Param,
   ParseIntPipe,
   Post,
   Put,
@@ -64,7 +63,9 @@ export class UserController {
     if (id && roles.includes(USER_ROLE.ADMIN)) {
       targetId = parseInt(id);
       if (isNaN(userId)) {
-        throw new BadRequestException('用户ID不正确, 请重新确认。');
+        throw new BadRequestException(
+          'Validation Failed: 用户ID不正确, 请重新确认。',
+        );
       }
     }
 
@@ -120,9 +121,14 @@ export class UserController {
     return AjaxResult.success(result);
   }
 
-  @Delete('user/:id')
-  async delete(@Param('id', ParseIntPipe) id: number) {
-    const result = await this.userService.delete(id);
+  @Delete('user')
+  async delete(@Query('ids') ids: (string | number)[]) {
+    try {
+      ids = ids.map((id) => parseInt(id as string));
+    } catch {
+      throw new BadRequestException('Validation Failed: id 不合法');
+    }
+    const result = await this.userService.delete(ids as number[]);
     return AjaxResult.success(result);
   }
 

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -70,9 +71,14 @@ export class CategoryController {
     return AjaxResult.success(result.identifiers);
   }
 
-  @Delete('/:id')
-  async deleteCategory(@Param('id', ParseIntPipe) id: number) {
-    const result = await this.categoryService.deleteCategory(id);
+  @Delete()
+  async deleteCategory(@Query('ids') ids: (string | number)[]) {
+    try {
+      ids = ids.map((id) => parseInt(id as string));
+    } catch {
+      throw new BadRequestException('Validation Failed: id 不合法');
+    }
+    const result = await this.categoryService.deleteCategory(ids as number[]);
     return AjaxResult.success(result);
   }
 }

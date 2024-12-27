@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -63,9 +64,15 @@ export class ProductController {
     return AjaxResult.success(result.identifiers);
   }
 
-  @Delete('product/:id')
-  async deleteProduct(@Param('id', ParseIntPipe) id: number) {
-    const result = await this.productService.deleteProduct(id);
+  @Delete('product')
+  async deleteProduct(@Query('ids') ids: (string | number)[]) {
+    try {
+      ids = ids.map((id) => parseInt(id as string));
+    } catch {
+      throw new BadRequestException('Validation Failed: id 不合法');
+    }
+
+    const result = await this.productService.deleteProduct(ids as number[]);
     return AjaxResult.success(result);
   }
 
@@ -81,9 +88,16 @@ export class ProductController {
     return result ? AjaxResult.success() : AjaxResult.fail();
   }
 
-  @Delete('product_option/:id')
-  async deleteProductOption(@Param('id', ParseIntPipe) id: number) {
-    const result = await this.productService.deleteProductOption(id);
+  @Delete('product_option')
+  async deleteProductOption(@Query('ids') ids: (string | number)[]) {
+    try {
+      ids = ids.map((id) => parseInt(id as string));
+    } catch {
+      throw new BadRequestException('Validation Failed: id 不合法');
+    }
+    const result = await this.productService.deleteProductOption(
+      ids as number[],
+    );
     return AjaxResult.success(result);
   }
 }

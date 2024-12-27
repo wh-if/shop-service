@@ -78,7 +78,10 @@ export class SystemService extends BaseService {
       .execute();
   }
 
-  deleteConfig(id: number) {
-    return this.configQBuilder.delete().where({ id }).execute();
+  deleteConfig(ids: number[]) {
+    return this.configQBuilder
+      .delete()
+      .where('id IN (:...ids)', { ids })
+      .execute();
   }
 }

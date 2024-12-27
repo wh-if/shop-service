@@ -43,6 +43,10 @@ export class UserService extends BaseService {
     });
 
     const [list, total] = await sqlBuilder.getManyAndCount();
+
+    list.forEach((item) => {
+      delete item.password;
+    });
     return {
       list,
       total,
@@ -80,7 +84,10 @@ export class UserService extends BaseService {
     return this.userQBuilder.update().set(updateParams).where({ id }).execute();
   }
 
-  delete(id: number) {
-    return this.userQBuilder.delete().where({ id }).execute();
+  delete(ids: number[]) {
+    return this.userQBuilder
+      .delete()
+      .where('id IN (:...ids)', { ids })
+      .execute();
   }
 }
