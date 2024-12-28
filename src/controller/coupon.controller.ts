@@ -50,13 +50,13 @@ export class CouponController {
   @Put('coupon')
   async updateCoupon(@Body() dto: CouponUpdateDTO) {
     const result = await this.couponService.updateCoupon(dto);
-    return result ? AjaxResult.success() : AjaxResult.fail();
+    return AjaxResult.judge(result);
   }
 
   @Post('coupon')
   async insertCoupon(@Body() dto: CouponInsertDTO) {
     const result = await this.couponService.insertCoupon(dto);
-    return result ? AjaxResult.success() : AjaxResult.fail();
+    return AjaxResult.judge(result);
   }
 
   @Delete('coupon')
@@ -81,7 +81,7 @@ export class CouponController {
       request.userInfo.userId,
       couponId,
     );
-    return result ? AjaxResult.success() : AjaxResult.fail();
+    return AjaxResult.judge(result);
   }
 
   // 我的优惠券列表(未使用的)

@@ -30,7 +30,6 @@ export class SetsController {
     @Query('pageSize', ParseIntPipe) pageSize: number,
     @Query('query') query: SetsListQueryDTO,
   ) {
-    console.log(query);
     const result = await this.setsService.getSetsList(query ?? {}, {
       page,
       pageSize,
@@ -48,13 +47,13 @@ export class SetsController {
   @Put()
   async updateSets(@Body() dto: SetsUpdateDTO) {
     const result = await this.setsService.updateSets(dto);
-    return result ? AjaxResult.success() : AjaxResult.fail();
+    return AjaxResult.judge(result);
   }
 
   @Post()
   async insertSets(@Body() dto: SetsInsertDTO) {
     const result = await this.setsService.insertSets(dto);
-    return result ? AjaxResult.success() : AjaxResult.fail();
+    return AjaxResult.judge(result);
   }
 
   @Delete()

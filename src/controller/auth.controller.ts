@@ -39,10 +39,7 @@ export class AuthController {
   @Post('login')
   async login(@Body() dto: LoginDTO) {
     const result = await this.authService.login(dto);
-    if (typeof result === 'string') {
-      return AjaxResult.fail(result);
-    }
 
-    return AjaxResult.success(result);
+    return AjaxResult.judge(result);
   }
 }

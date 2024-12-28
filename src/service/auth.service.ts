@@ -4,6 +4,7 @@ import { UserService } from './user.service';
 import { Md5Hash } from 'src/common/util';
 import { JwtService } from '@nestjs/jwt';
 import { AppConfig } from 'src/config';
+import { USER_STATUS } from 'src/common/constant';
 
 @Injectable()
 export class AuthService {
@@ -68,6 +69,8 @@ export class AuthService {
 
     if (!user) {
       return '用户不存在，请确认手机号正确。';
+    } else if (user.status !== USER_STATUS.ON) {
+      return '账号异常，无法登录。';
     }
     const { password, ...userInfo } = user;
     // 登录校验

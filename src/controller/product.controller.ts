@@ -79,7 +79,7 @@ export class ProductController {
   @Post('product_option')
   async insertProductOption(@Body() dto: ProductOptionInsertDTO) {
     const result = await this.productService.insertProductOption(dto);
-    return result ? AjaxResult.success() : AjaxResult.fail();
+    return AjaxResult.judge(result);
   }
 
   @Delete('product_option')

@@ -65,11 +65,7 @@ export class OrderController {
   async cancelStatus(@Param('id', ParseIntPipe) id: number) {
     const result = await this.orderService.cancelOrder(id);
 
-    if (typeof result === 'string') {
-      AjaxResult.fail(result);
-    } else {
-      return AjaxResult.success(result);
-    }
+    return AjaxResult.judge(result);
   }
 
   /**
@@ -102,21 +98,14 @@ export class OrderController {
       request.userInfo.userId,
     );
 
-    if (typeof result === 'string') {
-      return AjaxResult.fail(result);
-    } else {
-      return AjaxResult.success(result);
-    }
+    return AjaxResult.judge(result);
   }
 
   @Delete('order/:id')
   @Roles([USER_ROLE.USER])
   async deleteOrder(@Param('id', ParseIntPipe) id: number) {
     const result = await this.orderService.deleteOrder(id);
-    if (typeof result === 'string') {
-      return AjaxResult.fail(result);
-    } else {
-      return AjaxResult.success(result);
-    }
+
+    return AjaxResult.judge(result);
   }
 }

@@ -20,9 +20,10 @@ export class CollectController {
   @Get()
   @Roles([USER_ROLE.USER])
   async getCollectList(@Req() request: ExpressReqWithUser) {
-    return AjaxResult.success(
-      await this.collectService.getCollectList(request.userInfo.userId),
+    const result = await this.collectService.getCollectList(
+      request.userInfo.userId,
     );
+    return AjaxResult.success(result);
   }
 
   @Post('/:productId')
@@ -35,7 +36,7 @@ export class CollectController {
       request.userInfo.userId,
       productId,
     );
-    return result ? AjaxResult.success() : AjaxResult.fail();
+    return AjaxResult.judge(result);
   }
 
   @Delete('/:productId')
@@ -48,6 +49,6 @@ export class CollectController {
       request.userInfo.userId,
       productId,
     );
-    return result ? AjaxResult.success() : AjaxResult.fail();
+    return AjaxResult.judge(result);
   }
 }
