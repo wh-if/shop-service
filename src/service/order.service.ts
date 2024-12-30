@@ -177,7 +177,7 @@ export class OrderService extends BaseService {
         element.chooseOption,
       );
 
-      if (element.type === OrderDetailType.Product) {
+      if (element.type === OrderDetailType.PRODUCT) {
         const product = await this.productService.findProductById(
           element.targetId,
         );
@@ -216,7 +216,7 @@ export class OrderService extends BaseService {
             (i) => i !== orderDetail.useCoupon,
           );
         }
-      } else if (element.type === OrderDetailType.Sets) {
+      } else if (element.type === OrderDetailType.SETS) {
         const sets = await this.setsService.findSetsById(element.targetId);
         orderDetail.totalAmount = 0;
 

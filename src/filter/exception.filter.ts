@@ -21,6 +21,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       message = exception.getResponse() as object;
     } else {
       status = HttpStatus.INTERNAL_SERVER_ERROR;
+      console.error(exception);
       message = {
         statusCode: status,
         timestamp: new Date().toISOString(),
