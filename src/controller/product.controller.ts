@@ -18,6 +18,8 @@ import {
   ProductListQueryDTO,
   ProductOptionInsertDTO,
   ProductOptionUpdateDTO,
+  ProductValidator,
+  ProductOptionValidator,
 } from 'src/dto/product.dto';
 import { Public } from 'src/guard/auth.guard';
 
@@ -48,12 +50,25 @@ export class ProductController {
 
   @Put('product')
   async updateProduct(@Body() dto: ProductUpdateDTO) {
+    ProductValidator.id.required().check(dto.id);
+    ProductValidator.name.unRequired().check(dto.name);
+    ProductValidator.categoryId.unRequired().check(dto.categoryId);
+    ProductValidator.description.unRequired().check(dto.description);
+    ProductValidator.avatar.unRequired().check(dto.avatar);
+    ProductValidator.pictures.unRequired().check(dto.pictures);
+    ProductValidator.status.unRequired().check(dto.status);
     const result = await this.productService.updateProduct(dto);
     return AjaxResult.success(result);
   }
 
   @Post('product')
   async insertProduct(@Body() dto: ProductInsertDTO) {
+    ProductValidator.name.required().check(dto.name);
+    ProductValidator.categoryId.required().check(dto.categoryId);
+    ProductValidator.description.required().check(dto.description);
+    ProductValidator.avatar.required().check(dto.avatar);
+    ProductValidator.pictures.required().check(dto.pictures);
+    ProductValidator.status.required().check(dto.status);
     const result = await this.productService.insertProduct(dto);
     return AjaxResult.success(result.identifiers);
   }
@@ -72,12 +87,20 @@ export class ProductController {
 
   @Put('product_option')
   async updateProductOption(@Body() dto: ProductOptionUpdateDTO) {
+    ProductOptionValidator.name.unRequired().check(dto.name);
+    ProductOptionValidator.originalPrice.unRequired().check(dto.originalPrice);
+    ProductOptionValidator.price.unRequired().check(dto.price);
+    ProductOptionValidator.id.required().check(dto.id);
     const result = await this.productService.updateProductOption(dto);
     return AjaxResult.success(result);
   }
 
   @Post('product_option')
   async insertProductOption(@Body() dto: ProductOptionInsertDTO) {
+    ProductOptionValidator.name.required().check(dto.name);
+    ProductOptionValidator.originalPrice.required().check(dto.originalPrice);
+    ProductOptionValidator.price.required().check(dto.price);
+    ProductOptionValidator.productId.required().check(dto.productId);
     const result = await this.productService.insertProductOption(dto);
     return AjaxResult.judge(result);
   }
