@@ -6,11 +6,11 @@ export class ProductOption {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column('varchar')
+  @Column({ type: 'varchar', length: 16 })
   name: string;
-  @Column('int')
+  @Column({ type: 'float' })
   price: number; // 价格
-  @Column('int')
+  @Column({ type: 'float' })
   originalPrice: number; // 原价
   @ManyToOne(() => Product, (product) => product.options)
   product: Product;

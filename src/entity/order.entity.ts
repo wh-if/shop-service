@@ -27,9 +27,9 @@ export class Order {
   @Column({ type: 'enum', enum: ORDER_TYPE })
   orderType: ORDER_TYPE; // 订单处理类型
 
-  @Column('int')
+  @Column({ type: 'float' })
   payAmount: number; // 订单支付金额
-  @Column('int')
+  @Column({ type: 'float' })
   amount: number; // 订单原始金额
 
   @Column('int')

@@ -24,7 +24,7 @@ export class Sets {
   @Column({ type: 'enum', enum: COUPON_TYPE, default: COUPON_TYPE.CUT })
   type: COUPON_TYPE;
 
-  @Column('int')
+  @Column({ type: 'float' })
   amount: number; // 折扣数额或打折比例, 10减10元，0.5打五折
 
   @Column({ type: 'timestamp' })

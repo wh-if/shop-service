@@ -22,7 +22,7 @@ export class Coupon {
   @Column('int')
   needFull: number; // 满多少享受折扣
 
-  @Column('int')
+  @Column({ type: 'float' })
   amount: number; // 折扣数额或打折比例
 
   @Column('int')

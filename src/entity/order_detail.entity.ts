@@ -12,9 +12,9 @@ export class OrderDetail {
   targetId: number; // type为product就是productId，同理为setsId
   @Column('int')
   quantity: number; // 数量
-  @Column('int')
+  @Column({ type: 'float' })
   totalAmount: number; // 总价
-  @Column('int')
+  @Column({ type: 'float' })
   discountAmount: number; // 折扣价格，即结算价格
   @Column({ type: 'simple-array' })
   chooseOption: number[]; // 单项的配置选项, type为product 就是product的option id，为sets就是sets包含的product的option id数组

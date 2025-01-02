@@ -115,4 +115,24 @@ export class Validator {
 
     return this;
   }
+
+  array(itemType: 'string' | 'number' | 'object' | 'function') {
+    this.stack.push((target) => {
+      if (Array.isArray(target)) {
+        target.forEach((t) => {
+          if (typeof t !== itemType) {
+            throw new Error(
+              `Validation Failed: ${this.key}需要是 Array[${itemType}] 类型`,
+            );
+          }
+        });
+      } else {
+        throw new Error(
+          `Validation Failed: ${this.key}需要是 Array[${itemType}] 类型`,
+        );
+      }
+    });
+
+    return this;
+  }
 }
