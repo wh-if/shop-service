@@ -8,6 +8,7 @@ import {
 import { DataSource, SelectQueryBuilder } from 'typeorm';
 import { ListPageParam } from 'src/common/type';
 import { BaseService } from './base.service';
+import { COMMENTS_STATUS } from 'src/common/constant';
 
 @Injectable()
 export class CommentsService extends BaseService {
@@ -63,6 +64,14 @@ export class CommentsService extends BaseService {
       .update()
       .set(updateParams)
       .where({ id })
+      .execute();
+  }
+
+  updateCommentsStatus(ids: number[], status: COMMENTS_STATUS) {
+    return this.commentsQBuilder
+      .update()
+      .set({ status })
+      .where('id IN (:...ids)', { ids })
       .execute();
   }
 

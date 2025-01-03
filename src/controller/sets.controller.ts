@@ -16,6 +16,7 @@ import {
   SetsInsertDTO,
   SetsUpdateDTO,
   SetsListQueryDTO,
+  SetsValidator,
 } from 'src/dto/sets.dto';
 import { Public } from 'src/guard/auth.guard';
 
@@ -46,12 +47,28 @@ export class SetsController {
 
   @Put()
   async updateSets(@Body() dto: SetsUpdateDTO) {
+    SetsValidator.id.required().check(dto.id);
+    SetsValidator.name.unRequired().check(dto.name);
+    SetsValidator.description.unRequired().check(dto.description);
+    SetsValidator.avatar.unRequired().check(dto.avatar);
+    SetsValidator.type.unRequired().check(dto.type);
+    SetsValidator.startDate.unRequired().check(dto.startDate);
+    SetsValidator.endDate.unRequired().check(dto.endDate);
+    SetsValidator.productIds.unRequired().check(dto.productIds);
+
     const result = await this.setsService.updateSets(dto);
     return AjaxResult.judge(result);
   }
 
   @Post()
   async insertSets(@Body() dto: SetsInsertDTO) {
+    SetsValidator.name.required().check(dto.name);
+    SetsValidator.description.required().check(dto.description);
+    SetsValidator.avatar.required().check(dto.avatar);
+    SetsValidator.type.required().check(dto.type);
+    SetsValidator.startDate.required().check(dto.startDate);
+    SetsValidator.endDate.required().check(dto.endDate);
+    SetsValidator.productIds.required().check(dto.productIds);
     const result = await this.setsService.insertSets(dto);
     return AjaxResult.judge(result);
   }

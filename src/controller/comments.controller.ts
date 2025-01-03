@@ -3,7 +3,6 @@ import {
   Body,
   Controller,
   Delete,
-  ForbiddenException,
   Get,
   Param,
   ParseIntPipe,
@@ -18,6 +17,8 @@ import {
   CommentsInsertDTO,
   CommentsUpdateDTO,
   CommentsListQueryDTO,
+  CommentsValidator,
+  CommentsUpdateStatusDTO,
 } from 'src/dto/comments.dto';
 import { ExpressReqWithUser } from 'src/common/type';
 import { UserService } from 'src/service/user.service';
@@ -54,14 +55,11 @@ export class CommentsController {
 
   @Put('comments')
   @Roles([USER_ROLE.USER])
-  async updateComments(
-    @Body() dto: CommentsUpdateDTO,
-    @Req() request: ExpressReqWithUser,
-  ) {
-    const user = await this.userService.findUserInfo(request.userInfo.userId);
-    if (dto.status && !user.roles.includes(USER_ROLE.ADMIN)) {
-      throw new ForbiddenException('当前用户无权修改评论状态');
-    }
+  async updateComments(@Body() dto: CommentsUpdateDTO) {
+    CommentsValidator.id.required().check(dto.id);
+    CommentsValidator.star.unRequired().check(dto.star);
+    CommentsValidator.pictures.unRequired().check(dto.pictures);
+    CommentsValidator.content.unRequired().check(dto.content);
 
     const result = await this.commentsService.updateComments(dto);
     return AjaxResult.success(result);
@@ -73,6 +71,12 @@ export class CommentsController {
     @Body() dto: CommentsInsertDTO,
     @Req() request: ExpressReqWithUser,
   ) {
+    CommentsValidator.orderId.required().check(dto.orderId);
+    CommentsValidator.parentId.required().check(dto.parentId);
+    CommentsValidator.star.required().check(dto.star);
+    CommentsValidator.pictures.required().check(dto.pictures);
+    CommentsValidator.content.required().check(dto.content);
+
     const result = await this.commentsService.insertComments(
       dto,
       request.userInfo.userId,
@@ -89,6 +93,18 @@ export class CommentsController {
       throw new BadRequestException('Validation Failed: id 不合法');
     }
     const result = await this.commentsService.deleteComments(ids as number[]);
+    return AjaxResult.success(result);
+  }
+
+  @Put('comments/status')
+  async updateCommentsStatus(@Body() dto: CommentsUpdateStatusDTO) {
+    CommentsValidator.status.required().check(dto.status);
+    CommentsValidator.ids.required().check(dto.ids);
+
+    const result = await this.commentsService.updateCommentsStatus(
+      dto.ids,
+      dto.status,
+    );
     return AjaxResult.success(result);
   }
 }

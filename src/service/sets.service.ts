@@ -56,6 +56,8 @@ export class SetsService extends BaseService {
     sets.avatar = dto.avatar;
     sets.description = dto.description;
     sets.name = dto.name;
+    sets.type = dto.type;
+    sets.amount = dto.amount;
     sets.startDate = dto.startDate && new Date(parseInt(dto.startDate));
     sets.endDate = dto.endDate && new Date(parseInt(dto.endDate));
     sets.products = [];
