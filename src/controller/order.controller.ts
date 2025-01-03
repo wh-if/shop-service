@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -17,10 +18,12 @@ import {
   OrderListQueryDTO,
   OrderStatusChangeDTO,
   OrderPayDTO,
+  OrderValidator,
+  OrderDetailValidator,
 } from 'src/dto/order.dto';
 import { ExpressReqWithUser } from 'src/common/type';
 import { AuthService } from 'src/service/auth.service';
-import { USER_ROLE } from 'src/common/constant';
+import { ORDER_STATUS, USER_ROLE } from 'src/common/constant';
 import { Roles } from 'src/guard/role.guard';
 
 @Controller()
@@ -53,17 +56,43 @@ export class OrderController {
 
   @Put('order/status')
   async updateOrderStatus(@Body() dto: OrderStatusChangeDTO) {
+    OrderValidator.ids.required().check(dto.ids);
+    OrderValidator.status.required().check(dto.status);
+
     const result = await this.orderService.changeOrderStatus(
-      dto.id,
+      dto.ids,
       dto.status,
     );
     return AjaxResult.success(result);
   }
 
-  @Put('order/cancel/:id')
+  @Put('order/cancel/:orderId')
   @Roles([USER_ROLE.USER])
-  async cancelStatus(@Param('id', ParseIntPipe) id: number) {
-    const result = await this.orderService.cancelOrder(id);
+  async cancelOrder(
+    @Param('orderId', ParseIntPipe) orderId: number,
+    @Req() request: ExpressReqWithUser,
+  ) {
+    const result = await this.orderService.cancelOrRemoveOrder(
+      orderId,
+      ORDER_STATUS.CANCEL,
+      request.userInfo.userId,
+    );
+
+    return AjaxResult.judge(result);
+  }
+
+  /** 普通用户操作订单只做状态改变 */
+  @Put('order/remove/:orderId')
+  @Roles([USER_ROLE.USER])
+  async removeOrder(
+    @Param('orderId', ParseIntPipe) orderId: number,
+    @Req() request: ExpressReqWithUser,
+  ) {
+    const result = await this.orderService.cancelOrRemoveOrder(
+      orderId,
+      ORDER_STATUS.REMOVED,
+      request.userInfo.userId,
+    );
 
     return AjaxResult.judge(result);
   }
@@ -77,6 +106,9 @@ export class OrderController {
   @Post('order/pay')
   @Roles([USER_ROLE.USER])
   async payOrder(@Body() dto: OrderPayDTO, @Req() request: ExpressReqWithUser) {
+    OrderValidator.id.required().check(dto.id);
+    OrderValidator.payType.required().check(dto.payType);
+
     // 检验验证码
     if (
       !this.authService.checkAuthCode(request.userInfo.telNumber, dto.authcode)
@@ -93,6 +125,21 @@ export class OrderController {
     @Body() dto: OrderInsertDTO,
     @Req() request: ExpressReqWithUser,
   ) {
+    if (dto.items.length < 1) {
+      return AjaxResult.fail('订单创建失败，订单项目不能为空！');
+    }
+
+    OrderValidator.orderType.required().check(dto.orderType);
+    OrderValidator.note.required().check(dto.note);
+    OrderValidator.couponIds.required().check(dto.couponIds);
+    OrderValidator.expectTime.required().check(dto.expectTime);
+    dto.items.forEach((item) => {
+      OrderDetailValidator.chooseOption.required().check(item.chooseOption);
+      OrderDetailValidator.quantity.required().check(item.quantity);
+      OrderDetailValidator.targetId.required().check(item.targetId);
+      OrderDetailValidator.type.required().check(item.type);
+    });
+
     const result = await this.orderService.insertOrder(
       dto,
       request.userInfo.userId,
@@ -101,11 +148,24 @@ export class OrderController {
     return AjaxResult.judge(result);
   }
 
-  @Delete('order/:id')
+  @Delete('order')
   @Roles([USER_ROLE.USER])
-  async deleteOrder(@Param('id', ParseIntPipe) id: number) {
-    const result = await this.orderService.deleteOrder(id);
+  async deleteOrder(@Query('ids') ids: (string | number)[]) {
+    try {
+      ids = ids.map((id) => parseInt(id as string));
+    } catch {
+      throw new BadRequestException('Validation Failed: id 不合法');
+    }
+    const result = await this.orderService.deleteOrder(ids as number[]);
 
-    return AjaxResult.judge(result);
+    const restIds = (ids as number[]).filter((i) => !result.includes(i));
+
+    if (restIds.length > 0) {
+      return AjaxResult.fail(
+        `订单 ${restIds.toString()} 删除失败！请确认订单状态为完成、取消或移除，之后再重新操作！`,
+      );
+    }
+
+    return AjaxResult.success('删除成功！');
   }
 }

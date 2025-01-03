@@ -1,4 +1,4 @@
-import { OrderDetailType } from 'src/common/constant';
+import { ORDER_DETAIL_TYPE } from 'src/common/constant';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Order } from './order.entity';
 
@@ -6,8 +6,8 @@ import { Order } from './order.entity';
 export class OrderDetail {
   @PrimaryGeneratedColumn()
   id: number;
-  @Column({ type: 'enum', enum: OrderDetailType })
-  type: OrderDetailType;
+  @Column({ type: 'enum', enum: ORDER_DETAIL_TYPE })
+  type: ORDER_DETAIL_TYPE;
   @Column('int')
   targetId: number; // type为product就是productId，同理为setsId
   @Column('int')
@@ -25,7 +25,7 @@ export class OrderDetail {
   order: Order;
 
   constructor(
-    type: OrderDetailType,
+    type: ORDER_DETAIL_TYPE,
     targetId: number,
     quantity: number,
     chooseOption: number[],

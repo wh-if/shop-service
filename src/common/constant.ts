@@ -71,6 +71,7 @@ export enum COMMENTS_STATUS {
  * @prop HANDLING - 处理中
  * @prop FINISHED - 完成
  * @prop CANCEL - 取消
+ * @prop REMOVED - 用户删除
  */
 export enum ORDER_STATUS {
   WAIT_PAY = 'wait_pay',
@@ -78,6 +79,7 @@ export enum ORDER_STATUS {
   HANDLING = 'handling',
   FINISHED = 'finished',
   CANCEL = 'cancel',
+  REMOVED = 'removed',
 }
 
 /**
@@ -100,7 +102,7 @@ export enum PAY_TYPE {
  * @prop PRODUCT - 产品
  * @prop SETS - 套装
  */
-export enum OrderDetailType {
+export enum ORDER_DETAIL_TYPE {
   PRODUCT = 'product',
   SETS = 'sets',
 }

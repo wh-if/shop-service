@@ -14,7 +14,7 @@ import {
   COUPON_TARGET,
   COUPON_TYPE,
   ORDER_STATUS,
-  OrderDetailType,
+  ORDER_DETAIL_TYPE,
   PAY_TYPE,
 } from 'src/common/constant';
 import { ProductService } from './product.service';
@@ -90,33 +90,52 @@ export class OrderService extends BaseService {
   }
 
   // 更改订单状态, 支付和取消走单独方法
-  changeOrderStatus(id: number, status: ORDER_STATUS) {
+  changeOrderStatus(ids: number[], status: ORDER_STATUS) {
     const finishTime =
       status === ORDER_STATUS.FINISHED ? new Date() : undefined;
     return this.orderQBuilder
       .update()
       .set({ status, finishTime })
-      .where({ id })
+      .where('id IN (:...ids)', { ids })
       .execute();
   }
 
-  // 取消订单
-  async cancelOrder(id: number) {
-    const order = await this.orderQBuilder.where({ id }).getOne();
-    if (order.status === ORDER_STATUS.FINISHED) {
-      return '订单已完成，无法取消';
+  // 取消/删除订单
+  async cancelOrRemoveOrder(
+    id: number,
+    type: ORDER_STATUS.CANCEL | ORDER_STATUS.REMOVED,
+    curUserId: number,
+  ) {
+    const order = await this.orderQBuilder
+      .where({ id, userId: curUserId })
+      .getOne();
+
+    if (!order) {
+      return '订单不存在，请重新确认后再操作！';
     }
 
-    // 恢复优惠券可用状态
-    this.couponService.changeReceivedCouponStatus(
-      order.couponIds,
-      order.userId,
-      false,
-    );
+    if (type === ORDER_STATUS.CANCEL) {
+      if (order.status === ORDER_STATUS.FINISHED) {
+        return '订单已完成，无法取消';
+      }
+      // 恢复优惠券可用状态
+      this.couponService.changeReceivedCouponStatus(
+        order.couponIds,
+        order.userId,
+        false,
+      );
+    } else if (type === ORDER_STATUS.REMOVED) {
+      if (
+        order.status !== ORDER_STATUS.CANCEL &&
+        order.status !== ORDER_STATUS.FINISHED
+      ) {
+        return '订单当前状态无法删除！';
+      }
+    }
 
     return this.orderQBuilder
       .update()
-      .set({ status: ORDER_STATUS.CANCEL })
+      .set({ status: type })
       .where({ id })
       .execute();
   }
@@ -145,15 +164,24 @@ export class OrderService extends BaseService {
    * @param id
    * @returns
    */
-  async deleteOrder(id: number) {
-    const order = await this.orderQBuilder.where({ id }).getOne();
-    if (
-      order.status !== ORDER_STATUS.CANCEL &&
-      order.status !== ORDER_STATUS.FINISHED
-    ) {
-      return '订单当前状态不可删除';
-    }
-    return this.orderQBuilder.delete().where({ id }).execute();
+  async deleteOrder(ids: number[]) {
+    const executeIds: number[] = [];
+
+    ids.forEach(async (id) => {
+      const order = await this.orderQBuilder.where({ id }).getOne();
+      if (
+        order.status === ORDER_STATUS.CANCEL ||
+        order.status === ORDER_STATUS.FINISHED ||
+        order.status === ORDER_STATUS.REMOVED
+      ) {
+        executeIds.push(id);
+      }
+    });
+    await this.orderQBuilder
+      .delete()
+      .where('id IN (:...ids)', { ids: executeIds })
+      .execute();
+    return executeIds;
   }
 
   /**
@@ -177,7 +205,7 @@ export class OrderService extends BaseService {
         element.chooseOption,
       );
 
-      if (element.type === OrderDetailType.PRODUCT) {
+      if (element.type === ORDER_DETAIL_TYPE.PRODUCT) {
         const product = await this.productService.findProductById(
           element.targetId,
         );
@@ -216,7 +244,7 @@ export class OrderService extends BaseService {
             (i) => i !== orderDetail.useCoupon,
           );
         }
-      } else if (element.type === OrderDetailType.SETS) {
+      } else if (element.type === ORDER_DETAIL_TYPE.SETS) {
         const sets = await this.setsService.findSetsById(element.targetId);
         orderDetail.totalAmount = 0;
 
