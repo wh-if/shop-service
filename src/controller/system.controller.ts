@@ -16,6 +16,7 @@ import {
   ConfigurationInsertDTO,
   ConfigurationListQueryDTO,
   ConfigurationUpdateDTO,
+  SystemValidator,
 } from 'src/dto/system.dto';
 import { Public } from 'src/guard/auth.guard';
 
@@ -45,12 +46,16 @@ export class SystemController {
 
   @Put('config')
   async updateConfig(@Body() dto: ConfigurationUpdateDTO) {
+    SystemValidator.id.required().check(dto.id);
+    SystemValidator.value.required().check(dto.value);
     const result = await this.systemService.updateConfig(dto);
     return AjaxResult.success(result);
   }
 
   @Post('config')
   async insertConfig(@Body() dto: ConfigurationInsertDTO) {
+    SystemValidator.key.required().check(dto.key);
+    SystemValidator.value.required().check(dto.value);
     const result = await this.systemService.insertConfig(dto);
     return AjaxResult.success(result.identifiers);
   }

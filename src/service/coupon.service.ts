@@ -31,12 +31,14 @@ export class CouponService extends BaseService {
 
     this.genWhereSql<Coupon, CouponListQueryDTO>(sqlBuilder, 'coupon', query, {
       stringType: ['id'],
-      timeType: ['startDate', 'endDate'],
+      timeType: ['startDate', 'endDate', 'createDate', 'updateDate'],
       enumType: ['status', 'target', 'type'],
       numberType: [],
     });
 
-    const [list, total] = await sqlBuilder.getManyAndCount();
+    const [list, total] = await sqlBuilder
+      .leftJoinAndSelect('coupon.products', 'product')
+      .getManyAndCount();
     return {
       list,
       total,
