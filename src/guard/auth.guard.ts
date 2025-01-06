@@ -1,6 +1,8 @@
 import {
   CanActivate,
   ExecutionContext,
+  HttpException,
+  HttpStatus,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -9,7 +11,7 @@ import { AppConfig } from '../config';
 import { Request } from 'express';
 import { Reflector } from '@nestjs/core';
 import { SetMetadata } from '@nestjs/common';
-import { UserInfoOfRequest } from 'src/common/type';
+import { TokenPayload } from 'src/common/type';
 
 export const IS_PUBLIC_KEY = 'isPublic';
 export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
@@ -36,15 +38,19 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException();
     }
     try {
-      const payload: UserInfoOfRequest = await this.jwtService.verifyAsync(
-        token,
-        {
-          secret: AppConfig.auth.jwt_secret,
-        },
-      );
+      const payload: TokenPayload = await this.jwtService.verifyAsync(token, {
+        secret: AppConfig.auth.jwt_secret,
+      });
       request['userInfo'] = payload;
     } catch {
-      throw new UnauthorizedException();
+      if (request.path === '/auth/token') {
+        throw new UnauthorizedException();
+      } else {
+        throw new HttpException(
+          { message: '使用 refresh_token 刷新 token' },
+          HttpStatus.ACCEPTED,
+        );
+      }
     }
     return true;
   }

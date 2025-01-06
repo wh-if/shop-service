@@ -5,6 +5,7 @@ import { Md5Hash } from 'src/common/util';
 import { JwtService } from '@nestjs/jwt';
 import { AppConfig } from 'src/config';
 import { USER_STATUS } from 'src/common/constant';
+import { TokenPayload } from 'src/common/type';
 
 @Injectable()
 export class AuthService {
@@ -110,6 +111,21 @@ export class AuthService {
         expiresIn: AppConfig.auth.refresh_token_expiresIn,
       }),
       userInfo,
+    };
+  }
+
+  async refreshToken(
+    payload: Pick<TokenPayload, 'userId' | 'telNumber' | 'roles'>,
+  ) {
+    const access_token = await this.jwtService.signAsync(payload, {
+      expiresIn: AppConfig.auth.access_token_expiresIn,
+    });
+    const refresh_token = await this.jwtService.signAsync(payload, {
+      expiresIn: AppConfig.auth.refresh_token_expiresIn,
+    });
+    return {
+      access_token,
+      refresh_token,
     };
   }
 }

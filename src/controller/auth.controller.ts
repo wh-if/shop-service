@@ -42,4 +42,18 @@ export class AuthController {
 
     return AjaxResult.judge(result);
   }
+
+  /**
+   * 使用refresh_token来重新获取token
+   */
+  @Get('token')
+  async refreshToken(@Req() request: ExpressReqWithUser) {
+    const { userId, telNumber, roles } = request.userInfo;
+    const result = await this.authService.refreshToken({
+      userId,
+      telNumber,
+      roles,
+    });
+    return AjaxResult.success(result);
+  }
 }

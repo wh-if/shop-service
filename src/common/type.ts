@@ -1,13 +1,15 @@
 import { USER_ROLE } from './constant';
 
 export interface ExpressReqWithUser extends Express.Request {
-  userInfo: UserInfoOfRequest;
+  userInfo: TokenPayload;
 }
 
-export interface UserInfoOfRequest {
+export interface TokenPayload {
   userId: number;
   telNumber: string;
   roles: USER_ROLE[];
+  iat: number;
+  exp: number;
 }
 
 export interface ListPageParam {
