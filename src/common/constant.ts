@@ -106,3 +106,21 @@ export enum ORDER_DETAIL_TYPE {
   PRODUCT = 'product',
   SETS = 'sets',
 }
+
+/**
+ * @prop OFF - 禁用
+ * @prop ON - 启用
+ */
+export enum ADVERTISEMENT_STATUS {
+  OFF = 'off',
+  ON = 'on',
+}
+
+/**
+ * @prop BANNER - 轮播图
+ * @prop POP - 弹框
+ */
+export enum ADVERTISEMENT_SHOW {
+  BANNER = 'banner',
+  POP = 'pop',
+}
