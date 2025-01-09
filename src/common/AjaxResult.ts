@@ -1,8 +1,9 @@
 /**
- * 1 成功
- * 0 失败
+ * 0 成功
+ * 1 一般失败
+ * 2 token过期刷新
  *  */
-type CodeType = 0 | 1;
+type CodeType = 0 | 1 | 2;
 
 export class AjaxResult {
   code: CodeType;
@@ -20,16 +21,16 @@ export class AjaxResult {
   static success(message: string, data?: object): AjaxResult;
   static success(arg_1?: string | object, arg_2?: object) {
     if (arguments.length === 0) {
-      return new AjaxResult(1, 'success', undefined);
+      return new AjaxResult(0, 'success', undefined);
     } else if (arguments.length === 1) {
-      return new AjaxResult(1, 'success', arg_1 as object);
+      return new AjaxResult(0, 'success', arg_1 as object);
     } else {
-      return new AjaxResult(1, arg_1 as string, arg_2);
+      return new AjaxResult(0, arg_1 as string, arg_2);
     }
   }
 
   static fail(message = 'fail') {
-    return new AjaxResult(0, message, null);
+    return new AjaxResult(1, message, null);
   }
 
   /**

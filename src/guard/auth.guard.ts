@@ -12,6 +12,7 @@ import { Request } from 'express';
 import { Reflector } from '@nestjs/core';
 import { SetMetadata } from '@nestjs/common';
 import { TokenPayload } from 'src/common/type';
+import { AjaxResult } from 'src/common/AjaxResult';
 
 export const IS_PUBLIC_KEY = 'isPublic';
 export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
@@ -47,8 +48,8 @@ export class AuthGuard implements CanActivate {
         throw new UnauthorizedException();
       } else {
         throw new HttpException(
-          { message: '使用 refresh_token 刷新 token' },
-          HttpStatus.ACCEPTED,
+          new AjaxResult(2, '使用 refresh_token 刷新 token', null),
+          HttpStatus.OK,
         );
       }
     }
