@@ -36,9 +36,15 @@ export class BaseService {
       if (!value) {
         return;
       }
-      if (value.length !== 2) {
-        throw new BadRequestException(
-          `${key as string} 应该是长度为 2 的数组，表示开始和结束。`,
+      if (Array.isArray(value)) {
+        if (value.length !== 2) {
+          throw new BadRequestException(
+            `Validation Failed: 列表查询参数${key.toString()}应该是长度为 2 的数组，表示开始和结束。`,
+          );
+        }
+      } else {
+        throw new Error(
+          `Validation Failed: 列表查询参数${key.toString()}需要是 Array[string] 类型`,
         );
       }
       const isTimeRangne = keys.timeType.includes(key);
@@ -73,6 +79,11 @@ export class BaseService {
       const value = query[key] as string[];
       if (!value) {
         return;
+      }
+      if (!Array.isArray(value)) {
+        throw new Error(
+          `Validation Failed: 列表查询参数${key.toString()}需要是 Array[string] 类型`,
+        );
       }
       sqlBuilder.andWhere(
         `${tableName}.${key as string} IN (:...${key as string})`,
