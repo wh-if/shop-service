@@ -17,6 +17,8 @@ export class Sets {
   name: string;
   @Column('varchar')
   description: string;
+  @Column('int')
+  categoryId: number;
 
   @Column({ type: 'varchar', nullable: true })
   avatar: string;

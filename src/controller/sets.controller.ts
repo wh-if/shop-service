@@ -55,6 +55,7 @@ export class SetsController {
     SetsValidator.startDate.unRequired().check(dto.startDate);
     SetsValidator.endDate.unRequired().check(dto.endDate);
     SetsValidator.productIds.unRequired().check(dto.productIds);
+    SetsValidator.categoryId.unRequired().check(dto.categoryId);
 
     const result = await this.setsService.updateSets(dto);
     return AjaxResult.judge(result);
@@ -69,6 +70,7 @@ export class SetsController {
     SetsValidator.startDate.required().check(dto.startDate);
     SetsValidator.endDate.required().check(dto.endDate);
     SetsValidator.productIds.required().check(dto.productIds);
+    SetsValidator.categoryId.required().check(dto.categoryId);
     const result = await this.setsService.insertSets(dto);
     return AjaxResult.judge(result);
   }
