@@ -33,7 +33,7 @@ export class CommentsController {
   @Get('comments')
   @Public()
   async getCommentsList(
-    @Query('query') query: CommentsListQueryDTO,
+    @Query('query') query: CommentsListQueryDTO = {},
     @Query('page', new ParseIntPipe({ optional: true })) page?: number,
     @Query('pageSize', new ParseIntPipe({ optional: true })) pageSize?: number,
   ) {

@@ -28,7 +28,7 @@ export class SetsController {
   @Get()
   @Public()
   async getSetsList(
-    @Query('query') query: SetsListQueryDTO,
+    @Query('query') query: SetsListQueryDTO = {},
     @Query('page', new ParseIntPipe({ optional: true })) page?: number,
     @Query('pageSize', new ParseIntPipe({ optional: true })) pageSize?: number,
   ) {

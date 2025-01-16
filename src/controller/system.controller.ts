@@ -28,7 +28,7 @@ export class SystemController {
   @Get('config')
   @Public()
   async getConfigList(
-    @Query('query') query: ConfigurationListQueryDTO,
+    @Query('query') query: ConfigurationListQueryDTO = {},
     @Query('page', new ParseIntPipe({ optional: true })) page?: number,
     @Query('pageSize', new ParseIntPipe({ optional: true })) pageSize?: number,
   ) {

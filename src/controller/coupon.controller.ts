@@ -32,7 +32,7 @@ export class CouponController {
   @Get('coupon')
   @Public()
   async getCouponList(
-    @Query('query') query: CouponListQueryDTO,
+    @Query('query') query: CouponListQueryDTO = {},
     @Query('page', new ParseIntPipe({ optional: true })) page?: number,
     @Query('pageSize', new ParseIntPipe({ optional: true })) pageSize?: number,
   ) {

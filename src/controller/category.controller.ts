@@ -28,7 +28,7 @@ export class CategoryController {
   @Get()
   @Public()
   async getCategoryList(
-    @Query('query') query: CategoryListQueryDTO,
+    @Query('query') query: CategoryListQueryDTO = {},
     @Query('page', new ParseIntPipe({ optional: true })) page?: number,
     @Query('pageSize', new ParseIntPipe({ optional: true })) pageSize?: number,
   ) {

@@ -31,7 +31,7 @@ export class ProductController {
   @Get('product')
   @Public()
   async getProductList(
-    @Query('query') query: ProductListQueryDTO,
+    @Query('query') query: ProductListQueryDTO = {},
     @Query('page', new ParseIntPipe({ optional: true })) page?: number,
     @Query('pageSize', new ParseIntPipe({ optional: true })) pageSize?: number,
   ) {

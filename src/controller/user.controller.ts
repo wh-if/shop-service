@@ -36,7 +36,7 @@ export class UserController {
 
   @Get('user')
   async getList(
-    @Query('query') query: UserListQueryDTO,
+    @Query('query') query: UserListQueryDTO = {},
     @Query('page', new ParseIntPipe({ optional: true })) page?: number,
     @Query('pageSize', new ParseIntPipe({ optional: true })) pageSize?: number,
   ) {

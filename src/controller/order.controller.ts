@@ -37,7 +37,7 @@ export class OrderController {
   @Get('order')
   @Roles([USER_ROLE.USER])
   async getOrderList(
-    @Query('query') query: OrderListQueryDTO,
+    @Query('query') query: OrderListQueryDTO = {},
     @Query('page', new ParseIntPipe({ optional: true })) page?: number,
     @Query('pageSize', new ParseIntPipe({ optional: true })) pageSize?: number,
   ) {
