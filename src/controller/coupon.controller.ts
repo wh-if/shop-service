@@ -23,6 +23,7 @@ import { ExpressReqWithUser } from 'src/common/type';
 import { Public } from 'src/guard/auth.guard';
 import { Roles } from 'src/guard/role.guard';
 import { USER_ROLE } from 'src/common/constant';
+import { ParseIntPartialPipe } from 'src/pip/ParseIntPartialPipe';
 
 @Controller()
 export class CouponController {
@@ -31,9 +32,9 @@ export class CouponController {
   @Get('coupon')
   @Public()
   async getCouponList(
-    @Query('page', ParseIntPipe) page: number,
-    @Query('pageSize', ParseIntPipe) pageSize: number,
     @Query('query') query: CouponListQueryDTO,
+    @Query('page', ParseIntPartialPipe) page?: number,
+    @Query('pageSize', ParseIntPartialPipe) pageSize?: number,
   ) {
     const result = await this.couponService.getCouponList(query ?? {}, {
       page,

@@ -93,4 +93,34 @@ export class BaseService {
       );
     });
   }
+
+  /**
+   * 获得一个添加了分页和排序的构造器
+   * @param sqlBuilder 构造器
+   * @param options 参数
+   * @returns
+   */
+  withPageOrderBuilder<T>(
+    sqlBuilder: SelectQueryBuilder<T>,
+    options: {
+      page?: number;
+      pageSize?: number;
+      orderBy?: string;
+      order?: 'ASC' | 'DESC';
+    },
+  ) {
+    if (options.page && options.pageSize) {
+      sqlBuilder
+        .limit(options.pageSize)
+        .offset((options.page - 1) * options.pageSize);
+    }
+
+    if (options.orderBy && options.order) {
+      sqlBuilder.orderBy(
+        `${sqlBuilder.alias}.${options.orderBy}`,
+        options.order,
+      );
+    }
+    return sqlBuilder;
+  }
 }

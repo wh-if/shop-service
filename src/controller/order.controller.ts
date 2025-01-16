@@ -25,6 +25,7 @@ import { ExpressReqWithUser } from 'src/common/type';
 import { AuthService } from 'src/service/auth.service';
 import { ORDER_STATUS, USER_ROLE } from 'src/common/constant';
 import { Roles } from 'src/guard/role.guard';
+import { ParseIntPartialPipe } from 'src/pip/ParseIntPartialPipe';
 
 @Controller()
 export class OrderController {
@@ -36,9 +37,9 @@ export class OrderController {
   @Get('order')
   @Roles([USER_ROLE.USER])
   async getOrderList(
-    @Query('page', ParseIntPipe) page: number,
-    @Query('pageSize', ParseIntPipe) pageSize: number,
     @Query('query') query: OrderListQueryDTO,
+    @Query('page', ParseIntPartialPipe) page?: number,
+    @Query('pageSize', ParseIntPartialPipe) pageSize?: number,
   ) {
     const result = await this.orderService.getOrderList(query ?? {}, {
       page,

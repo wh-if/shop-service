@@ -5,7 +5,6 @@ import {
   Delete,
   ForbiddenException,
   Get,
-  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -24,6 +23,7 @@ import { Public } from 'src/guard/auth.guard';
 import { ExpressReqWithUser } from 'src/common/type';
 import { Roles } from 'src/guard/role.guard';
 import { USER_ROLE } from 'src/common/constant';
+import { ParseIntPartialPipe } from 'src/pip/ParseIntPartialPipe';
 
 @Controller()
 export class UserController {
@@ -34,9 +34,9 @@ export class UserController {
 
   @Get('user')
   async getList(
-    @Query('page', ParseIntPipe) page: number,
-    @Query('pageSize', ParseIntPipe) pageSize: number,
     @Query('query') query: UserListQueryDTO,
+    @Query('page', ParseIntPartialPipe) page?: number,
+    @Query('pageSize', ParseIntPartialPipe) pageSize?: number,
   ) {
     const result = await this.userService.getUserList(query ?? {}, {
       page,

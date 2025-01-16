@@ -25,12 +25,12 @@ export class UserService extends BaseService {
   }
 
   async getUserList(query: UserListQueryDTO, page: ListPageParam) {
-    const sqlBuilder = this.userQBuilder
-      .limit(page.pageSize)
-      .offset((page.page - 1) * page.pageSize);
-    if (query.orderBy && query.order) {
-      sqlBuilder.orderBy({ [query.orderBy]: query.order });
-    }
+    const sqlBuilder = this.withPageOrderBuilder(this.userQBuilder, {
+      page: page.page,
+      pageSize: page.pageSize,
+      order: query.order,
+      orderBy: query.orderBy,
+    });
 
     this.genWhereSql<User, UserListQueryDTO>(sqlBuilder, 'user', query, {
       stringType: ['id', 'name', 'telNumber', 'roles'],

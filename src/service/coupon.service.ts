@@ -22,23 +22,35 @@ export class CouponService extends BaseService {
   }
 
   async getCouponList(query: CouponListQueryDTO, page: ListPageParam) {
-    const sqlBuilder = this.couponQBuilder
-      .limit(page.pageSize)
-      .offset((page.page - 1) * page.pageSize);
-    if (query.orderBy && query.order) {
-      sqlBuilder.orderBy({ [query.orderBy]: query.order });
-    }
-
-    this.genWhereSql<Coupon, CouponListQueryDTO>(sqlBuilder, 'coupon', query, {
-      stringType: ['id'],
-      timeType: ['startDate', 'endDate', 'createDate', 'updateDate'],
-      enumType: ['status', 'target', 'type'],
-      numberType: [],
+    const subSqlBuilder = this.withPageOrderBuilder(this.couponQBuilder, {
+      page: page.page,
+      pageSize: page.pageSize,
+      order: query.order,
+      orderBy: query.orderBy,
     });
 
-    const [list, total] = await sqlBuilder
-      .leftJoinAndSelect('coupon.products', 'product')
+    this.genWhereSql<Coupon, CouponListQueryDTO>(
+      subSqlBuilder,
+      'coupon',
+      query,
+      {
+        stringType: ['id'],
+        timeType: ['startDate', 'endDate', 'createDate', 'updateDate'],
+        enumType: ['status', 'target', 'type'],
+        numberType: [],
+      },
+    );
+
+    const [idList, total] = await subSqlBuilder
+      .select('coupon.id')
       .getManyAndCount();
+
+    const list = await this.couponQBuilder
+      .leftJoinAndSelect('coupon.products', 'product')
+      .where(`coupon.id IN (:...ids)`, {
+        ids: idList.map((c) => c.id),
+      })
+      .getMany();
     return {
       list,
       total,

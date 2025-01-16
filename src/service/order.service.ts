@@ -37,21 +37,30 @@ export class OrderService extends BaseService {
   }
 
   async getOrderList(query: OrderListQueryDTO, page: ListPageParam) {
-    const sqlBuilder = this.orderQBuilder
-      .limit(page.pageSize)
-      .offset((page.page - 1) * page.pageSize);
-    if (query.orderBy && query.order) {
-      sqlBuilder.orderBy({ [query.orderBy]: query.order });
-    }
+    const subSqlBuilder = this.withPageOrderBuilder(this.orderQBuilder, {
+      page: page.page,
+      pageSize: page.pageSize,
+      order: query.order,
+      orderBy: query.orderBy,
+    });
 
-    this.genWhereSql<Order, OrderListQueryDTO>(sqlBuilder, 'order', query, {
+    this.genWhereSql<Order, OrderListQueryDTO>(subSqlBuilder, 'order', query, {
       stringType: ['id'],
       timeType: ['createTime', 'finishTime', 'payTime'],
       enumType: ['userId', 'orderType', 'payType', 'status'],
       numberType: ['payAmount'],
     });
 
-    const [list, total] = await sqlBuilder.getManyAndCount();
+    const [idList, total] = await subSqlBuilder
+      .select('order.id')
+      .getManyAndCount();
+
+    const list = await this.orderQBuilder
+      .leftJoinAndSelect('order.items', 'order_detail')
+      .where(`order.id IN (:...ids)`, {
+        ids: idList.map((o) => o.id),
+      })
+      .getMany();
     return {
       list,
       total,

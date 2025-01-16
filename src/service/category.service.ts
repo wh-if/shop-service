@@ -20,12 +20,12 @@ export class CategoryService extends BaseService {
   }
 
   async getCategoryList(query: CategoryListQueryDTO, page: ListPageParam) {
-    const sqlBuilder = this.categoryQBuilder
-      .limit(page.pageSize)
-      .offset((page.page - 1) * page.pageSize);
-    if (query.orderBy && query.order) {
-      sqlBuilder.orderBy({ [query.orderBy]: query.order });
-    }
+    const sqlBuilder = this.withPageOrderBuilder(this.categoryQBuilder, {
+      page: page.page,
+      pageSize: page.pageSize,
+      order: query.order,
+      orderBy: query.orderBy,
+    });
 
     this.genWhereSql<Category, CategoryListQueryDTO>(
       sqlBuilder,

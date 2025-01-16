@@ -19,6 +19,7 @@ import {
   SystemValidator,
 } from 'src/dto/system.dto';
 import { Public } from 'src/guard/auth.guard';
+import { ParseIntPartialPipe } from 'src/pip/ParseIntPartialPipe';
 
 @Controller('system')
 export class SystemController {
@@ -27,9 +28,9 @@ export class SystemController {
   @Get('config')
   @Public()
   async getConfigList(
-    @Query('page', ParseIntPipe) page: number,
-    @Query('pageSize', ParseIntPipe) pageSize: number,
     @Query('query') query: ConfigurationListQueryDTO,
+    @Query('page', ParseIntPartialPipe) page?: number,
+    @Query('pageSize', ParseIntPartialPipe) pageSize?: number,
   ) {
     const result = await this.systemService.getConfigList(query ?? {}, {
       page,

@@ -21,23 +21,32 @@ export class SetsService extends BaseService {
   }
 
   async getSetsList(query: SetsListQueryDTO, page: ListPageParam) {
-    const sqlBuilder = this.setsQBuilder
-      .limit(page.pageSize)
-      .offset((page.page - 1) * page.pageSize);
-    if (query.orderBy && query.order) {
-      sqlBuilder.orderBy({ [query.orderBy]: query.order });
-    }
+    const subSqlBuilder = this.withPageOrderBuilder(this.setsQBuilder, {
+      page: page.page,
+      pageSize: page.pageSize,
+      order: query.order,
+      orderBy: query.orderBy,
+    });
 
-    this.genWhereSql<Sets, SetsListQueryDTO>(sqlBuilder, 'sets', query, {
+    this.genWhereSql<Sets, SetsListQueryDTO>(subSqlBuilder, 'sets', query, {
       stringType: ['id', 'name'],
       timeType: ['createDate', 'endDate', 'startDate'],
       enumType: ['type', 'categoryId'],
       numberType: [],
     });
 
-    const [list, total] = await sqlBuilder
-      .leftJoinAndSelect('sets.products', 'product')
+    const [idList, total] = await subSqlBuilder
+      .select('sets.id')
       .getManyAndCount();
+
+    const list = await this.setsQBuilder
+      .leftJoinAndSelect('sets.products', 'product')
+      .leftJoinAndSelect('product.options', 'product_option')
+      .where(`sets.id IN (:...ids)`, {
+        ids: idList.map((s) => s.id),
+      })
+      .getMany();
+
     return {
       list,
       total,

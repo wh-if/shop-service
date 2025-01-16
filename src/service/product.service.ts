@@ -23,16 +23,15 @@ export class ProductService extends BaseService {
   }
 
   async getProductList(query: ProductListQueryDTO, page: ListPageParam) {
-    const sqlBuilder = this.productQBuilder
-      .limit(page.pageSize)
-      .offset((page.page - 1) * page.pageSize);
-
-    if (query.orderBy && query.order) {
-      sqlBuilder.orderBy(`product.${query.orderBy}`, query.order);
-    }
+    const subSqlBuilder = this.withPageOrderBuilder(this.productQBuilder, {
+      page: page.page,
+      pageSize: page.pageSize,
+      order: query.order,
+      orderBy: query.orderBy,
+    });
 
     this.genWhereSql<Product, ProductListQueryDTO>(
-      sqlBuilder,
+      subSqlBuilder,
       'product',
       query,
       {
@@ -43,9 +42,17 @@ export class ProductService extends BaseService {
       },
     );
 
-    const [list, total] = await sqlBuilder
-      .leftJoinAndSelect('product.options', 'product_option')
+    const [idList, total] = await subSqlBuilder
+      .select('product.id')
       .getManyAndCount();
+
+    const list = await this.productQBuilder
+      .leftJoinAndSelect('product.options', 'product_option')
+      .where(`product.id IN (:...ids)`, {
+        ids: idList.map((p) => p.id),
+      })
+      .getMany();
+
     return {
       list,
       total,

@@ -21,24 +21,21 @@ import {
   CommentsUpdateStatusDTO,
 } from 'src/dto/comments.dto';
 import { ExpressReqWithUser } from 'src/common/type';
-import { UserService } from 'src/service/user.service';
 import { USER_ROLE } from 'src/common/constant';
 import { Public } from 'src/guard/auth.guard';
 import { Roles } from 'src/guard/role.guard';
+import { ParseIntPartialPipe } from 'src/pip/ParseIntPartialPipe';
 
 @Controller()
 export class CommentsController {
-  constructor(
-    private commentsService: CommentsService,
-    private userService: UserService,
-  ) {}
+  constructor(private commentsService: CommentsService) {}
 
   @Get('comments')
   @Public()
   async getCommentsList(
-    @Query('page', ParseIntPipe) page: number,
-    @Query('pageSize', ParseIntPipe) pageSize: number,
     @Query('query') query: CommentsListQueryDTO,
+    @Query('page', ParseIntPartialPipe) page?: number,
+    @Query('pageSize', ParseIntPartialPipe) pageSize?: number,
   ) {
     const result = await this.commentsService.getCommentsList(query ?? {}, {
       page,

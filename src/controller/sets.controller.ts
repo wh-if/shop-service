@@ -19,6 +19,7 @@ import {
   SetsValidator,
 } from 'src/dto/sets.dto';
 import { Public } from 'src/guard/auth.guard';
+import { ParseIntPartialPipe } from 'src/pip/ParseIntPartialPipe';
 
 @Controller('sets')
 export class SetsController {
@@ -27,9 +28,9 @@ export class SetsController {
   @Get()
   @Public()
   async getSetsList(
-    @Query('page', ParseIntPipe) page: number,
-    @Query('pageSize', ParseIntPipe) pageSize: number,
     @Query('query') query: SetsListQueryDTO,
+    @Query('page', ParseIntPartialPipe) page?: number,
+    @Query('pageSize', ParseIntPartialPipe) pageSize?: number,
   ) {
     const result = await this.setsService.getSetsList(query ?? {}, {
       page,

@@ -23,12 +23,12 @@ export class SystemService extends BaseService {
   }
 
   async getConfigList(query: ConfigurationListQueryDTO, page: ListPageParam) {
-    const sqlBuilder = this.configQBuilder
-      .limit(page.pageSize)
-      .offset((page.page - 1) * page.pageSize);
-    if (query.orderBy && query.order) {
-      sqlBuilder.orderBy({ [query.orderBy]: query.order });
-    }
+    const sqlBuilder = this.withPageOrderBuilder(this.configQBuilder, {
+      page: page.page,
+      pageSize: page.pageSize,
+      order: query.order,
+      orderBy: query.orderBy,
+    });
 
     this.genWhereSql<Configuration, ConfigurationListQueryDTO>(
       sqlBuilder,

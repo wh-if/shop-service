@@ -22,6 +22,7 @@ import {
   ProductOptionValidator,
 } from 'src/dto/product.dto';
 import { Public } from 'src/guard/auth.guard';
+import { ParseIntPartialPipe } from 'src/pip/ParseIntPartialPipe';
 
 @Controller()
 export class ProductController {
@@ -30,9 +31,9 @@ export class ProductController {
   @Get('product')
   @Public()
   async getProductList(
-    @Query('page', ParseIntPipe) page: number,
-    @Query('pageSize', ParseIntPipe) pageSize: number,
     @Query('query') query: ProductListQueryDTO,
+    @Query('page', ParseIntPartialPipe) page?: number,
+    @Query('pageSize', ParseIntPartialPipe) pageSize?: number,
   ) {
     const result = await this.productService.getProductList(query ?? {}, {
       page,

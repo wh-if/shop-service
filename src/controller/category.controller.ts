@@ -19,6 +19,7 @@ import {
   CategoryValidator,
 } from 'src/dto/category.dto';
 import { Public } from 'src/guard/auth.guard';
+import { ParseIntPartialPipe } from 'src/pip/ParseIntPartialPipe';
 
 @Controller('category')
 export class CategoryController {
@@ -27,9 +28,9 @@ export class CategoryController {
   @Get()
   @Public()
   async getCategoryList(
-    @Query('page', ParseIntPipe) page: number,
-    @Query('pageSize', ParseIntPipe) pageSize: number,
     @Query('query') query: CategoryListQueryDTO,
+    @Query('page', ParseIntPartialPipe) page?: number,
+    @Query('pageSize', ParseIntPartialPipe) pageSize?: number,
   ) {
     const result = await this.categoryService.getCategoryList(query ?? {}, {
       page,

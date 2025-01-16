@@ -21,12 +21,12 @@ export class CommentsService extends BaseService {
   }
 
   async getCommentsList(query: CommentsListQueryDTO, page: ListPageParam) {
-    const sqlBuilder = this.commentsQBuilder
-      .limit(page.pageSize)
-      .offset((page.page - 1) * page.pageSize);
-    if (query.orderBy && query.order) {
-      sqlBuilder.orderBy({ [query.orderBy]: query.order });
-    }
+    const sqlBuilder = this.withPageOrderBuilder(this.commentsQBuilder, {
+      page: page.page,
+      pageSize: page.pageSize,
+      order: query.order,
+      orderBy: query.orderBy,
+    });
 
     this.genWhereSql<Comments, CommentsListQueryDTO>(
       sqlBuilder,
