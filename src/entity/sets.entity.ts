@@ -5,9 +5,10 @@ import {
   JoinTable,
   ManyToMany,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { Product } from './product.entity';
-import { COUPON_TYPE } from 'src/common/constant';
+import { COUPON_TYPE, PRODUCT_STATUS } from 'src/common/constant';
 
 @Entity()
 export class Sets {
@@ -17,26 +18,24 @@ export class Sets {
   name: string;
   @Column('varchar')
   description: string;
-  @Column('int')
-  categoryId: number;
-
   @Column({ type: 'varchar', nullable: true })
   avatar: string;
-
+  @Column('int')
+  categoryId: number;
   @Column({ type: 'enum', enum: COUPON_TYPE, default: COUPON_TYPE.CUT })
   type: COUPON_TYPE;
 
   @Column({ type: 'float' })
   amount: number; // 折扣数额或打折比例, 10减10元，0.5打五折
 
-  @Column({ type: 'timestamp' })
-  startDate: Date; // 开始日期
-
-  @Column({ type: 'timestamp' })
-  endDate: Date; // 结束日期
+  @Column({ type: 'enum', enum: PRODUCT_STATUS, default: PRODUCT_STATUS.OFF })
+  status: PRODUCT_STATUS; // 状态
 
   @CreateDateColumn({ type: 'timestamp' })
-  createDate: Date; // 创建时间
+  createTime: Date; // 创建时间
+
+  @UpdateDateColumn({ type: 'timestamp' })
+  updateTime: Date; // 更新时间
 
   @ManyToMany(() => Product)
   @JoinTable()

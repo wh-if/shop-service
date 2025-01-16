@@ -1,21 +1,24 @@
-import { COUPON_TYPE } from 'src/common/constant';
+import { COUPON_TYPE, PRODUCT_STATUS } from 'src/common/constant';
 import { ListQueryParam } from 'src/common/type';
 import { Validator } from 'src/common/validator';
 import { Sets } from 'src/entity/sets.entity';
 
-export type SetsUpdateDTO = Pick<
-  Sets,
-  'id' | 'avatar' | 'description' | 'name' | 'amount' | 'type' | 'categoryId'
-> & { startDate: string; endDate: string; productIds: number[] };
-
 export type SetsInsertDTO = Pick<
   Sets,
-  'avatar' | 'description' | 'name' | 'amount' | 'type' | 'categoryId'
-> & { startDate: string; endDate: string; productIds: number[] };
+  | 'avatar'
+  | 'description'
+  | 'name'
+  | 'amount'
+  | 'type'
+  | 'categoryId'
+  | 'status'
+> & { productIds: number[] };
+
+export type SetsUpdateDTO = Pick<Sets, 'id'> & Partial<SetsInsertDTO>;
 
 export type SetsListQueryDTO = ListQueryParam<
   Sets,
-  'id' | 'endDate' | 'name' | 'type' | 'startDate' | 'createDate' | 'categoryId'
+  'id' | 'name' | 'type' | 'categoryId' | 'createTime' | 'updateTime' | 'status'
 >;
 
 export const SetsValidator: Partial<
@@ -23,8 +26,7 @@ export const SetsValidator: Partial<
 > = {
   type: Validator.validate('type').enum(COUPON_TYPE),
   amount: Validator.validate('amount').number(),
-  startDate: Validator.validate('startDate').string(),
-  endDate: Validator.validate('endDate').string(),
+  status: Validator.validate('status').enum(PRODUCT_STATUS),
   description: Validator.validate('description').string().max(255),
   avatar: Validator.validate('avatar').string().max(255),
   name: Validator.validate('name').string().max(16),

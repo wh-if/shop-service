@@ -54,8 +54,7 @@ export class SetsController {
     SetsValidator.description.unRequired().check(dto.description);
     SetsValidator.avatar.unRequired().check(dto.avatar);
     SetsValidator.type.unRequired().check(dto.type);
-    SetsValidator.startDate.unRequired().check(dto.startDate);
-    SetsValidator.endDate.unRequired().check(dto.endDate);
+    SetsValidator.status.unRequired().check(dto.status);
     SetsValidator.productIds.unRequired().check(dto.productIds);
     SetsValidator.categoryId.unRequired().check(dto.categoryId);
 
@@ -69,8 +68,7 @@ export class SetsController {
     SetsValidator.description.required().check(dto.description);
     SetsValidator.avatar.required().check(dto.avatar);
     SetsValidator.type.required().check(dto.type);
-    SetsValidator.startDate.required().check(dto.startDate);
-    SetsValidator.endDate.required().check(dto.endDate);
+    SetsValidator.status.required().check(dto.status);
     SetsValidator.productIds.required().check(dto.productIds);
     SetsValidator.categoryId.required().check(dto.categoryId);
     const result = await this.setsService.insertSets(dto);

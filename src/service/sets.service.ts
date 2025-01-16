@@ -42,8 +42,8 @@ export class SetsService extends BaseService {
 
     this.genWhereSql<Sets, SetsListQueryDTO>(subSqlBuilder, 'sets', query, {
       stringType: ['id', 'name'],
-      timeType: ['createDate', 'endDate', 'startDate'],
-      enumType: ['type', 'categoryId'],
+      timeType: ['createTime', 'updateTime'],
+      enumType: ['type', 'categoryId', 'status'],
       numberType: [],
     });
 
@@ -84,10 +84,9 @@ export class SetsService extends BaseService {
     sets.description = dto.description;
     sets.name = dto.name;
     sets.type = dto.type;
+    sets.status = dto.status;
     sets.amount = dto.amount;
     sets.categoryId = dto.categoryId;
-    sets.startDate = dto.startDate && new Date(parseInt(dto.startDate));
-    sets.endDate = dto.endDate && new Date(parseInt(dto.endDate));
     sets.products = [];
 
     if (dto.productIds?.length > 0) {
@@ -115,14 +114,8 @@ export class SetsService extends BaseService {
       products = [];
     }
 
-    const startDate =
-      dto.startDate && new Date(parseInt(updateParams.startDate));
-    const endDate = dto.endDate && new Date(parseInt(updateParams.endDate));
-
     await this.dataSource.getRepository(Sets).save({
       ...updateParams,
-      startDate,
-      endDate,
       products,
     });
     return true;
