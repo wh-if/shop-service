@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -25,7 +24,8 @@ import { ExpressReqWithUser } from 'src/common/type';
 import { AuthService } from 'src/service/auth.service';
 import { ORDER_STATUS, USER_ROLE } from 'src/common/constant';
 import { Roles } from 'src/guard/role.guard';
-import { ParseIntPartialPipe } from 'src/pip/ParseIntPartialPipe';
+import { ParseIntArrayPipe } from 'src/pip/ParseIntPipe';
+import { Validator } from 'src/common/validator';
 
 @Controller()
 export class OrderController {
@@ -38,9 +38,10 @@ export class OrderController {
   @Roles([USER_ROLE.USER])
   async getOrderList(
     @Query('query') query: OrderListQueryDTO,
-    @Query('page', ParseIntPartialPipe) page?: number,
-    @Query('pageSize', ParseIntPartialPipe) pageSize?: number,
+    @Query('page', new ParseIntPipe({ optional: true })) page?: number,
+    @Query('pageSize', new ParseIntPipe({ optional: true })) pageSize?: number,
   ) {
+    Validator.validate('ids').array('number').unRequired().check(query.ids);
     const result = await this.orderService.getOrderList(query ?? {}, {
       page,
       pageSize,
@@ -151,13 +152,8 @@ export class OrderController {
 
   @Delete('order')
   @Roles([USER_ROLE.USER])
-  async deleteOrder(@Query('ids') ids: (string | number)[]) {
-    try {
-      ids = ids.map((id) => parseInt(id as string));
-    } catch {
-      throw new BadRequestException('Validation Failed: id 不合法');
-    }
-    const result = await this.orderService.deleteOrder(ids as number[]);
+  async deleteOrder(@Query('ids', ParseIntArrayPipe) ids: number[]) {
+    const result = await this.orderService.deleteOrder(ids);
 
     const restIds = (ids as number[]).filter((i) => !result.includes(i));
 

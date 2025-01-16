@@ -43,7 +43,7 @@ export class BaseService {
           );
         }
       } else {
-        throw new Error(
+        throw new BadRequestException(
           `Validation Failed: 列表查询参数${key.toString()}需要是 Array[string] 类型`,
         );
       }
@@ -81,7 +81,7 @@ export class BaseService {
         return;
       }
       if (!Array.isArray(value)) {
-        throw new Error(
+        throw new BadRequestException(
           `Validation Failed: 列表查询参数${key.toString()}需要是 Array[string] 类型`,
         );
       }

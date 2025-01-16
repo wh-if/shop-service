@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -19,7 +18,8 @@ import {
   SystemValidator,
 } from 'src/dto/system.dto';
 import { Public } from 'src/guard/auth.guard';
-import { ParseIntPartialPipe } from 'src/pip/ParseIntPartialPipe';
+import { ParseIntArrayPipe } from 'src/pip/ParseIntPipe';
+import { Validator } from 'src/common/validator';
 
 @Controller('system')
 export class SystemController {
@@ -29,9 +29,10 @@ export class SystemController {
   @Public()
   async getConfigList(
     @Query('query') query: ConfigurationListQueryDTO,
-    @Query('page', ParseIntPartialPipe) page?: number,
-    @Query('pageSize', ParseIntPartialPipe) pageSize?: number,
+    @Query('page', new ParseIntPipe({ optional: true })) page?: number,
+    @Query('pageSize', new ParseIntPipe({ optional: true })) pageSize?: number,
   ) {
+    Validator.validate('ids').array('number').unRequired().check(query.ids);
     const result = await this.systemService.getConfigList(query ?? {}, {
       page,
       pageSize,
@@ -62,13 +63,8 @@ export class SystemController {
   }
 
   @Delete('config')
-  async deleteConfig(@Query('ids') ids: (string | number)[]) {
-    try {
-      ids = ids.map((id) => parseInt(id as string));
-    } catch {
-      throw new BadRequestException('Validation Failed: id 不合法');
-    }
-    const result = await this.systemService.deleteConfig(ids as number[]);
+  async deleteConfig(@Query('ids', ParseIntArrayPipe) ids: number[]) {
+    const result = await this.systemService.deleteConfig(ids);
     return AjaxResult.success(result);
   }
 }

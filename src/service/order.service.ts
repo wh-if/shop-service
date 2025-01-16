@@ -37,6 +37,17 @@ export class OrderService extends BaseService {
   }
 
   async getOrderList(query: OrderListQueryDTO, page: ListPageParam) {
+    if (query.ids) {
+      const [list, total] = await this.orderQBuilder
+        .leftJoinAndSelect('order.items', 'order_detail')
+        .where('order.id IN (:...ids)', { ids: query.ids })
+        .getManyAndCount();
+      return {
+        list,
+        total,
+      };
+    }
+
     const subSqlBuilder = this.withPageOrderBuilder(this.orderQBuilder, {
       page: page.page,
       pageSize: page.pageSize,
@@ -54,6 +65,12 @@ export class OrderService extends BaseService {
     const [idList, total] = await subSqlBuilder
       .select('order.id')
       .getManyAndCount();
+    if (idList.length === 0) {
+      return {
+        list: [],
+        total: 0,
+      };
+    }
 
     const list = await this.orderQBuilder
       .leftJoinAndSelect('order.items', 'order_detail')

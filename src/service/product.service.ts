@@ -23,6 +23,17 @@ export class ProductService extends BaseService {
   }
 
   async getProductList(query: ProductListQueryDTO, page: ListPageParam) {
+    if (query.ids) {
+      const [list, total] = await this.productQBuilder
+        .leftJoinAndSelect('product.options', 'product_option')
+        .where('product.id IN (:...ids)', { ids: query.ids })
+        .getManyAndCount();
+      return {
+        list,
+        total,
+      };
+    }
+
     const subSqlBuilder = this.withPageOrderBuilder(this.productQBuilder, {
       page: page.page,
       pageSize: page.pageSize,
@@ -45,6 +56,12 @@ export class ProductService extends BaseService {
     const [idList, total] = await subSqlBuilder
       .select('product.id')
       .getManyAndCount();
+    if (idList.length === 0) {
+      return {
+        list: [],
+        total: 0,
+      };
+    }
 
     const list = await this.productQBuilder
       .leftJoinAndSelect('product.options', 'product_option')

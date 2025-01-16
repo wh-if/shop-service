@@ -21,6 +21,18 @@ export class SetsService extends BaseService {
   }
 
   async getSetsList(query: SetsListQueryDTO, page: ListPageParam) {
+    if (query.ids) {
+      const [list, total] = await this.setsQBuilder
+        .leftJoinAndSelect('sets.products', 'product')
+        .leftJoinAndSelect('product.options', 'product_option')
+        .where('sets.id IN (:...ids)', { ids: query.ids })
+        .getManyAndCount();
+      return {
+        list,
+        total,
+      };
+    }
+
     const subSqlBuilder = this.withPageOrderBuilder(this.setsQBuilder, {
       page: page.page,
       pageSize: page.pageSize,
@@ -38,6 +50,12 @@ export class SetsService extends BaseService {
     const [idList, total] = await subSqlBuilder
       .select('sets.id')
       .getManyAndCount();
+    if (idList.length === 0) {
+      return {
+        list: [],
+        total: 0,
+      };
+    }
 
     const list = await this.setsQBuilder
       .leftJoinAndSelect('sets.products', 'product')

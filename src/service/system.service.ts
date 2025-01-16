@@ -23,6 +23,16 @@ export class SystemService extends BaseService {
   }
 
   async getConfigList(query: ConfigurationListQueryDTO, page: ListPageParam) {
+    if (query.ids) {
+      const [list, total] = await this.configQBuilder
+        .where('id IN (:...ids)', { ids: query.ids })
+        .getManyAndCount();
+      return {
+        list,
+        total,
+      };
+    }
+
     const sqlBuilder = this.withPageOrderBuilder(this.configQBuilder, {
       page: page.page,
       pageSize: page.pageSize,

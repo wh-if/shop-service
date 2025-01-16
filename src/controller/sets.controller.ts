@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -19,7 +18,8 @@ import {
   SetsValidator,
 } from 'src/dto/sets.dto';
 import { Public } from 'src/guard/auth.guard';
-import { ParseIntPartialPipe } from 'src/pip/ParseIntPartialPipe';
+import { ParseIntArrayPipe } from 'src/pip/ParseIntPipe';
+import { Validator } from 'src/common/validator';
 
 @Controller('sets')
 export class SetsController {
@@ -29,9 +29,10 @@ export class SetsController {
   @Public()
   async getSetsList(
     @Query('query') query: SetsListQueryDTO,
-    @Query('page', ParseIntPartialPipe) page?: number,
-    @Query('pageSize', ParseIntPartialPipe) pageSize?: number,
+    @Query('page', new ParseIntPipe({ optional: true })) page?: number,
+    @Query('pageSize', new ParseIntPipe({ optional: true })) pageSize?: number,
   ) {
+    Validator.validate('ids').array('number').unRequired().check(query.ids);
     const result = await this.setsService.getSetsList(query ?? {}, {
       page,
       pageSize,
@@ -77,13 +78,8 @@ export class SetsController {
   }
 
   @Delete()
-  async deleteSets(@Query('ids') ids: (string | number)[]) {
-    try {
-      ids = ids.map((id) => parseInt(id as string));
-    } catch {
-      throw new BadRequestException('Validation Failed: id 不合法');
-    }
-    const result = await this.setsService.deleteSets(ids as number[]);
+  async deleteSets(@Query('ids', ParseIntArrayPipe) ids: number[]) {
+    const result = await this.setsService.deleteSets(ids);
     return AjaxResult.success(result);
   }
 }

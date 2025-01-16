@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -23,7 +22,8 @@ import { ExpressReqWithUser } from 'src/common/type';
 import { Public } from 'src/guard/auth.guard';
 import { Roles } from 'src/guard/role.guard';
 import { USER_ROLE } from 'src/common/constant';
-import { ParseIntPartialPipe } from 'src/pip/ParseIntPartialPipe';
+import { ParseIntArrayPipe } from 'src/pip/ParseIntPipe';
+import { Validator } from 'src/common/validator';
 
 @Controller()
 export class CouponController {
@@ -33,9 +33,10 @@ export class CouponController {
   @Public()
   async getCouponList(
     @Query('query') query: CouponListQueryDTO,
-    @Query('page', ParseIntPartialPipe) page?: number,
-    @Query('pageSize', ParseIntPartialPipe) pageSize?: number,
+    @Query('page', new ParseIntPipe({ optional: true })) page?: number,
+    @Query('pageSize', new ParseIntPipe({ optional: true })) pageSize?: number,
   ) {
+    Validator.validate('ids').array('number').unRequired().check(query.ids);
     const result = await this.couponService.getCouponList(query ?? {}, {
       page,
       pageSize,
@@ -87,13 +88,8 @@ export class CouponController {
   }
 
   @Delete('coupon')
-  async deleteCoupon(@Query('ids') ids: (string | number)[]) {
-    try {
-      ids = ids.map((id) => parseInt(id as string));
-    } catch {
-      throw new BadRequestException('Validation Failed: id 不合法');
-    }
-    await this.couponService.deleteCoupon(ids as number[]);
+  async deleteCoupon(@Query('ids', ParseIntArrayPipe) ids: number[]) {
+    await this.couponService.deleteCoupon(ids);
     return AjaxResult.success();
   }
 

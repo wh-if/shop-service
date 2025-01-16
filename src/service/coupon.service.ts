@@ -22,6 +22,17 @@ export class CouponService extends BaseService {
   }
 
   async getCouponList(query: CouponListQueryDTO, page: ListPageParam) {
+    if (query.ids) {
+      const [list, total] = await this.couponQBuilder
+        .where('coupon.id IN (:...ids)', { ids: query.ids })
+        .leftJoinAndSelect('coupon.products', 'product')
+        .getManyAndCount();
+      return {
+        list,
+        total,
+      };
+    }
+
     const subSqlBuilder = this.withPageOrderBuilder(this.couponQBuilder, {
       page: page.page,
       pageSize: page.pageSize,
@@ -44,6 +55,12 @@ export class CouponService extends BaseService {
     const [idList, total] = await subSqlBuilder
       .select('coupon.id')
       .getManyAndCount();
+    if (idList.length === 0) {
+      return {
+        list: [],
+        total: 0,
+      };
+    }
 
     const list = await this.couponQBuilder
       .leftJoinAndSelect('coupon.products', 'product')

@@ -25,6 +25,16 @@ export class UserService extends BaseService {
   }
 
   async getUserList(query: UserListQueryDTO, page: ListPageParam) {
+    if (query.ids) {
+      const [list, total] = await this.userQBuilder
+        .where('user.id IN (:...ids)', { ids: query.ids })
+        .getManyAndCount();
+      return {
+        list,
+        total,
+      };
+    }
+
     const sqlBuilder = this.withPageOrderBuilder(this.userQBuilder, {
       page: page.page,
       pageSize: page.pageSize,

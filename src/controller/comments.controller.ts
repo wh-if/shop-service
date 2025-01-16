@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -24,7 +23,8 @@ import { ExpressReqWithUser } from 'src/common/type';
 import { USER_ROLE } from 'src/common/constant';
 import { Public } from 'src/guard/auth.guard';
 import { Roles } from 'src/guard/role.guard';
-import { ParseIntPartialPipe } from 'src/pip/ParseIntPartialPipe';
+import { ParseIntArrayPipe } from 'src/pip/ParseIntPipe';
+import { Validator } from 'src/common/validator';
 
 @Controller()
 export class CommentsController {
@@ -34,9 +34,10 @@ export class CommentsController {
   @Public()
   async getCommentsList(
     @Query('query') query: CommentsListQueryDTO,
-    @Query('page', ParseIntPartialPipe) page?: number,
-    @Query('pageSize', ParseIntPartialPipe) pageSize?: number,
+    @Query('page', new ParseIntPipe({ optional: true })) page?: number,
+    @Query('pageSize', new ParseIntPipe({ optional: true })) pageSize?: number,
   ) {
+    Validator.validate('ids').array('number').unRequired().check(query.ids);
     const result = await this.commentsService.getCommentsList(query ?? {}, {
       page,
       pageSize,
@@ -83,13 +84,8 @@ export class CommentsController {
 
   @Delete('comments')
   @Roles([USER_ROLE.USER])
-  async deleteComments(@Query('ids') ids: (string | number)[]) {
-    try {
-      ids = ids.map((id) => parseInt(id as string));
-    } catch {
-      throw new BadRequestException('Validation Failed: id 不合法');
-    }
-    const result = await this.commentsService.deleteComments(ids as number[]);
+  async deleteComments(@Query('ids', ParseIntArrayPipe) ids: number[]) {
+    const result = await this.commentsService.deleteComments(ids);
     return AjaxResult.success(result);
   }
 

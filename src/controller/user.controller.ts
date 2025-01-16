@@ -5,6 +5,7 @@ import {
   Delete,
   ForbiddenException,
   Get,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -23,7 +24,8 @@ import { Public } from 'src/guard/auth.guard';
 import { ExpressReqWithUser } from 'src/common/type';
 import { Roles } from 'src/guard/role.guard';
 import { USER_ROLE } from 'src/common/constant';
-import { ParseIntPartialPipe } from 'src/pip/ParseIntPartialPipe';
+import { ParseIntArrayPipe } from 'src/pip/ParseIntPipe';
+import { Validator } from 'src/common/validator';
 
 @Controller()
 export class UserController {
@@ -35,9 +37,10 @@ export class UserController {
   @Get('user')
   async getList(
     @Query('query') query: UserListQueryDTO,
-    @Query('page', ParseIntPartialPipe) page?: number,
-    @Query('pageSize', ParseIntPartialPipe) pageSize?: number,
+    @Query('page', new ParseIntPipe({ optional: true })) page?: number,
+    @Query('pageSize', new ParseIntPipe({ optional: true })) pageSize?: number,
   ) {
+    Validator.validate('ids').array('number').unRequired().check(query.ids);
     const result = await this.userService.getUserList(query ?? {}, {
       page,
       pageSize,
@@ -116,13 +119,8 @@ export class UserController {
   }
 
   @Delete('user')
-  async delete(@Query('ids') ids: (string | number)[]) {
-    try {
-      ids = ids.map((id) => parseInt(id as string));
-    } catch {
-      throw new BadRequestException('Validation Failed: id 不合法');
-    }
-    const result = await this.userService.delete(ids as number[]);
+  async delete(@Query('ids', ParseIntArrayPipe) ids: number[]) {
+    const result = await this.userService.delete(ids);
     return AjaxResult.success(result);
   }
 

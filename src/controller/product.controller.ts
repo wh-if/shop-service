@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -22,7 +21,8 @@ import {
   ProductOptionValidator,
 } from 'src/dto/product.dto';
 import { Public } from 'src/guard/auth.guard';
-import { ParseIntPartialPipe } from 'src/pip/ParseIntPartialPipe';
+import { ParseIntArrayPipe } from 'src/pip/ParseIntPipe';
+import { Validator } from 'src/common/validator';
 
 @Controller()
 export class ProductController {
@@ -32,9 +32,10 @@ export class ProductController {
   @Public()
   async getProductList(
     @Query('query') query: ProductListQueryDTO,
-    @Query('page', ParseIntPartialPipe) page?: number,
-    @Query('pageSize', ParseIntPartialPipe) pageSize?: number,
+    @Query('page', new ParseIntPipe({ optional: true })) page?: number,
+    @Query('pageSize', new ParseIntPipe({ optional: true })) pageSize?: number,
   ) {
+    Validator.validate('ids').array('number').unRequired().check(query.ids);
     const result = await this.productService.getProductList(query ?? {}, {
       page,
       pageSize,
@@ -75,14 +76,8 @@ export class ProductController {
   }
 
   @Delete('product')
-  async deleteProduct(@Query('ids') ids: (string | number)[]) {
-    try {
-      ids = ids.map((id) => parseInt(id as string));
-    } catch {
-      throw new BadRequestException('Validation Failed: id 不合法');
-    }
-
-    const result = await this.productService.deleteProduct(ids as number[]);
+  async deleteProduct(@Query('ids', ParseIntArrayPipe) ids: number[]) {
+    const result = await this.productService.deleteProduct(ids);
     return AjaxResult.success(result);
   }
 
@@ -107,15 +102,8 @@ export class ProductController {
   }
 
   @Delete('product_option')
-  async deleteProductOption(@Query('ids') ids: (string | number)[]) {
-    try {
-      ids = ids.map((id) => parseInt(id as string));
-    } catch {
-      throw new BadRequestException('Validation Failed: id 不合法');
-    }
-    const result = await this.productService.deleteProductOption(
-      ids as number[],
-    );
+  async deleteProductOption(@Query('ids', ParseIntArrayPipe) ids: number[]) {
+    const result = await this.productService.deleteProductOption(ids);
     return AjaxResult.success(result);
   }
 }

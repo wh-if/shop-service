@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -19,7 +18,8 @@ import {
   CategoryValidator,
 } from 'src/dto/category.dto';
 import { Public } from 'src/guard/auth.guard';
-import { ParseIntPartialPipe } from 'src/pip/ParseIntPartialPipe';
+import { ParseIntArrayPipe } from 'src/pip/ParseIntPipe';
+import { Validator } from 'src/common/validator';
 
 @Controller('category')
 export class CategoryController {
@@ -29,9 +29,10 @@ export class CategoryController {
   @Public()
   async getCategoryList(
     @Query('query') query: CategoryListQueryDTO,
-    @Query('page', ParseIntPartialPipe) page?: number,
-    @Query('pageSize', ParseIntPartialPipe) pageSize?: number,
+    @Query('page', new ParseIntPipe({ optional: true })) page?: number,
+    @Query('pageSize', new ParseIntPipe({ optional: true })) pageSize?: number,
   ) {
+    Validator.validate('ids').array('number').unRequired().check(query.ids);
     const result = await this.categoryService.getCategoryList(query ?? {}, {
       page,
       pageSize,
@@ -67,13 +68,8 @@ export class CategoryController {
   }
 
   @Delete()
-  async deleteCategory(@Query('ids') ids: (string | number)[]) {
-    try {
-      ids = ids.map((id) => parseInt(id as string));
-    } catch {
-      throw new BadRequestException('Validation Failed: id 不合法');
-    }
-    const result = await this.categoryService.deleteCategory(ids as number[]);
+  async deleteCategory(@Query('ids', ParseIntArrayPipe) ids: number[]) {
+    const result = await this.categoryService.deleteCategory(ids);
     return AjaxResult.success(result);
   }
 }

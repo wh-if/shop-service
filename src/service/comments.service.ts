@@ -21,6 +21,16 @@ export class CommentsService extends BaseService {
   }
 
   async getCommentsList(query: CommentsListQueryDTO, page: ListPageParam) {
+    if (query.ids) {
+      const [list, total] = await this.commentsQBuilder
+        .where('id IN (:...ids)', { ids: query.ids })
+        .getManyAndCount();
+      return {
+        list,
+        total,
+      };
+    }
+
     const sqlBuilder = this.withPageOrderBuilder(this.commentsQBuilder, {
       page: page.page,
       pageSize: page.pageSize,

@@ -20,6 +20,16 @@ export class CategoryService extends BaseService {
   }
 
   async getCategoryList(query: CategoryListQueryDTO, page: ListPageParam) {
+    if (query.ids) {
+      const [list, total] = await this.categoryQBuilder
+        .where('id IN (:...ids)', { ids: query.ids })
+        .getManyAndCount();
+      return {
+        list,
+        total,
+      };
+    }
+
     const sqlBuilder = this.withPageOrderBuilder(this.categoryQBuilder, {
       page: page.page,
       pageSize: page.pageSize,
