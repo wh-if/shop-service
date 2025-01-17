@@ -83,6 +83,7 @@ export class UserService extends BaseService {
   }
 
   update(dto: UserUpdateDTO & { lastLoginTime?: Date }, id: number) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { authcode, ...updateParams } = dto;
     if (!!updateParams.password) {
       updateParams.password = Md5Hash(updateParams.password);

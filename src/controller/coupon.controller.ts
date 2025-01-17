@@ -107,8 +107,8 @@ export class CouponController {
     return AjaxResult.judge(result);
   }
 
-  // 我的优惠券列表(未使用的)
-  @Get('receive_coupon/me')
+  // 获取用户的优惠券列表
+  @Get('receive_coupon')
   @Roles([USER_ROLE.USER])
   async getCouponsByUser(@Req() request: ExpressReqWithUser) {
     const result = await this.couponService.getCouponsByUser(

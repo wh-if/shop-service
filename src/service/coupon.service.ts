@@ -206,7 +206,7 @@ export class CouponService extends BaseService {
   }
 
   /**
-   * 我的优惠券列表(未使用的)
+   * 用户的优惠券列表
    * @param userId
    * @returns
    */
@@ -214,7 +214,6 @@ export class CouponService extends BaseService {
     const coupons = await this.dataSource
       .createQueryBuilder(ReceivedCoupon, 'received_coupon')
       .where('userId = :userId', { userId })
-      .andWhere('hasUsed = 0')
       .getMany();
     return coupons;
   }
