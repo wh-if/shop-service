@@ -24,7 +24,6 @@ import { USER_ROLE } from 'src/common/constant';
 import { Public } from 'src/guard/auth.guard';
 import { Roles } from 'src/guard/role.guard';
 import { ParseIntArrayPipe } from 'src/pip/ParseIntPipe';
-import { Validator } from 'src/common/validator';
 
 @Controller()
 export class CommentsController {
@@ -37,7 +36,9 @@ export class CommentsController {
     @Query('page', new ParseIntPipe({ optional: true })) page?: number,
     @Query('pageSize', new ParseIntPipe({ optional: true })) pageSize?: number,
   ) {
-    Validator.validate('ids').array('number').unRequired().check(query.ids);
+    if (query.ids) {
+      query.ids = await new ParseIntArrayPipe().transform(query.ids, null);
+    }
     const result = await this.commentsService.getCommentsList(query ?? {}, {
       page,
       pageSize,

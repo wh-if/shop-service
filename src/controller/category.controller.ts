@@ -19,7 +19,6 @@ import {
 } from 'src/dto/category.dto';
 import { Public } from 'src/guard/auth.guard';
 import { ParseIntArrayPipe } from 'src/pip/ParseIntPipe';
-import { Validator } from 'src/common/validator';
 
 @Controller('category')
 export class CategoryController {
@@ -32,7 +31,9 @@ export class CategoryController {
     @Query('page', new ParseIntPipe({ optional: true })) page?: number,
     @Query('pageSize', new ParseIntPipe({ optional: true })) pageSize?: number,
   ) {
-    Validator.validate('ids').array('number').unRequired().check(query.ids);
+    if (query.ids) {
+      query.ids = await new ParseIntArrayPipe().transform(query.ids, null);
+    }
     const result = await this.categoryService.getCategoryList(query ?? {}, {
       page,
       pageSize,

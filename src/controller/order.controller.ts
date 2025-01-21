@@ -25,7 +25,6 @@ import { AuthService } from 'src/service/auth.service';
 import { ORDER_STATUS, USER_ROLE } from 'src/common/constant';
 import { Roles } from 'src/guard/role.guard';
 import { ParseIntArrayPipe } from 'src/pip/ParseIntPipe';
-import { Validator } from 'src/common/validator';
 
 @Controller()
 export class OrderController {
@@ -41,7 +40,9 @@ export class OrderController {
     @Query('page', new ParseIntPipe({ optional: true })) page?: number,
     @Query('pageSize', new ParseIntPipe({ optional: true })) pageSize?: number,
   ) {
-    Validator.validate('ids').array('number').unRequired().check(query.ids);
+    if (query.ids) {
+      query.ids = await new ParseIntArrayPipe().transform(query.ids, null);
+    }
     const result = await this.orderService.getOrderList(query ?? {}, {
       page,
       pageSize,
