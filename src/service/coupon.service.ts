@@ -79,6 +79,9 @@ export class CouponService extends BaseService {
     if (!isArray) {
       id = [id as number];
     }
+    if ((id as number[]).length === 0) {
+      return [];
+    }
     const result = await this.couponQBuilder
       .where('id IN (:...id)', { id })
       .leftJoinAndSelect('coupon.products', 'product')
@@ -192,6 +195,9 @@ export class CouponService extends BaseService {
     userId: number,
     used: boolean,
   ) {
+    if (couponIds.length === 0) {
+      return true;
+    }
     const coupons = await this.dataSource
       .createQueryBuilder(ReceivedCoupon, 'received_coupon')
       .where('userId = :userId', { userId })
@@ -237,6 +243,9 @@ export class CouponService extends BaseService {
    * 检查优惠券是否拥有
    */
   async checkCoupon(couponIds: number[], userId: number) {
+    if (couponIds.length === 0) {
+      return true;
+    }
     const couponIdsOfUser = (await this.getCouponsByUser(userId)).map(
       (item) => item.couponId,
     );

@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { OrderDetail } from './order_detail.entity';
+import { numberArrayTransformer } from './transformer';
 
 @Entity()
 export class Order {
@@ -39,10 +40,14 @@ export class Order {
 
   @Column({ type: 'enum', enum: PAY_TYPE, nullable: true })
   payType: PAY_TYPE; // 支付方式
-  @Column({ type: 'simple-array', nullable: true })
+  @Column({
+    type: 'simple-array',
+    nullable: true,
+    transformer: numberArrayTransformer,
+  })
   couponIds: number[]; // 订单使用的优惠券
 
-  @OneToMany(() => OrderDetail, (od) => od.order)
+  @OneToMany(() => OrderDetail, (od) => od.order, { cascade: true })
   items: OrderDetail[];
 
   constructor(

@@ -1,6 +1,7 @@
 import { ORDER_DETAIL_TYPE } from 'src/common/constant';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Order } from './order.entity';
+import { numberArrayTransformer } from './transformer';
 
 @Entity()
 export class OrderDetail {
@@ -16,7 +17,7 @@ export class OrderDetail {
   totalAmount: number; // 总价
   @Column({ type: 'float' })
   discountAmount: number; // 折扣价格，即结算价格
-  @Column({ type: 'simple-array' })
+  @Column({ type: 'simple-array', transformer: numberArrayTransformer })
   chooseOption: number[]; // 单项的配置选项, type为product 就是product的option id，为sets就是sets包含的product的option id数组
   @Column({ type: 'int', nullable: true })
   useCoupon: number; // 使用的优惠券，套餐无法使用优惠券

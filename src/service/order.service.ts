@@ -20,6 +20,8 @@ import {
 import { ProductService } from './product.service';
 import { SetsService } from './sets.service';
 import { Coupon } from 'src/entity/coupon.entity';
+import { Product } from 'src/entity/product.entity';
+import { Sets } from 'src/entity/sets.entity';
 
 @Injectable()
 export class OrderService extends BaseService {
@@ -84,11 +86,26 @@ export class OrderService extends BaseService {
     };
   }
 
-  findOrderById(id: number) {
-    return this.orderQBuilder
+  async findOrderById(id: number) {
+    const order = await this.orderQBuilder
       .where({ id })
       .leftJoinAndSelect('order.items', 'order_detail')
       .getOne();
+    const items: (OrderDetail & { rawInfo: Product | Sets })[] = [];
+    for (let index = 0; index < order.items.length; index++) {
+      const item = order.items[index];
+      let rawInfo: Product | Sets;
+      if (item.type === ORDER_DETAIL_TYPE.PRODUCT) {
+        rawInfo = await this.productService.findProductById(item.targetId);
+      } else if (item.type === ORDER_DETAIL_TYPE.SETS) {
+        rawInfo = await this.setsService.findSetsById(item.targetId);
+      }
+      items.push({ ...item, rawInfo });
+    }
+    return {
+      ...order,
+      items,
+    };
   }
 
   async insertOrder(dto: OrderInsertDTO, userId: number) {
@@ -110,7 +127,7 @@ export class OrderService extends BaseService {
     );
 
     // 计算订单子项目明细
-    this.calculateOrderDetail(order, dto.items);
+    await this.calculateOrderDetail(order, dto.items);
 
     return this.dataSource.getRepository(Order).save(order);
   }
@@ -220,7 +237,7 @@ export class OrderService extends BaseService {
     let unusedCoupons = [...order.couponIds];
     order.payAmount = 0;
     order.amount = 0;
-
+    order.items = [];
     // 计算子项
     for (let index = 0; index < orderItems.length; index++) {
       const element = orderItems[index];
@@ -239,8 +256,9 @@ export class OrderService extends BaseService {
           (i) => i.id === element.chooseOption[0],
         );
         orderDetail.totalAmount =
+          productChoosedOption.originalPrice * orderDetail.quantity;
+        orderDetail.discountAmount =
           productChoosedOption.price * orderDetail.quantity;
-        orderDetail.discountAmount = orderDetail.totalAmount;
 
         // 当前订单和产品可以用的优惠券
         const couponCanUse = (
@@ -249,17 +267,19 @@ export class OrderService extends BaseService {
 
         // 如果有优惠券可用，寻找最佳的优惠券和优惠价格
         if (couponCanUse.length > 0) {
+          // 未使用优惠券应支付的金额
+          const price = orderDetail.discountAmount;
           couponCanUse.forEach((c) => {
-            // 金额不满足，无法使用
-            if (orderDetail.totalAmount < c.needFull) {
+            // 支付金额不满足，无法使用
+            if (orderDetail.discountAmount < c.needFull) {
               return;
             }
             let curAmount: number;
 
             if (c.type === COUPON_TYPE.CUT) {
-              curAmount = orderDetail.totalAmount - c.amount;
+              curAmount = price - c.amount;
             } else if (c.type === COUPON_TYPE.PERCENTAGE) {
-              curAmount = orderDetail.totalAmount * c.amount;
+              curAmount = price * c.amount;
             }
             if (curAmount && curAmount < orderDetail.discountAmount) {
               orderDetail.useCoupon = c.id;
@@ -282,14 +302,15 @@ export class OrderService extends BaseService {
           const productChoosedOption = product.options.find(
             (i) => i.id === element.chooseOption[pIndex],
           );
-          orderDetail.totalAmount += productChoosedOption.price;
+          orderDetail.totalAmount += productChoosedOption.originalPrice;
+          orderDetail.discountAmount += productChoosedOption.price;
         }
 
         // 套餐优惠
         if (sets.type === COUPON_TYPE.CUT) {
-          orderDetail.discountAmount = orderDetail.totalAmount - sets.amount;
+          orderDetail.discountAmount = orderDetail.discountAmount - sets.amount;
         } else if (sets.type === COUPON_TYPE.PERCENTAGE) {
-          orderDetail.discountAmount = orderDetail.totalAmount * sets.amount;
+          orderDetail.discountAmount = orderDetail.discountAmount * sets.amount;
         }
 
         // 处理数量
@@ -298,11 +319,10 @@ export class OrderService extends BaseService {
         orderDetail.discountAmount =
           orderDetail.discountAmount * orderDetail.quantity;
       }
-
       order.payAmount += orderDetail.discountAmount;
       order.amount += orderDetail.totalAmount;
 
-      order.items.push(orderDetail); // TODO
+      order.items.push(orderDetail);
     }
 
     // 计算订单优惠券使用
