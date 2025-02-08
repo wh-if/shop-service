@@ -9,7 +9,7 @@ export const booleanToNumberTransformer = {
 
 export const numberArrayTransformer = {
   from(value: string[]): number[] {
-    return value.map((v: string) => parseInt(v, 10));
+    return value && value.map((v: string) => parseInt(v, 10));
   },
   to(value: number[]): any {
     return value;

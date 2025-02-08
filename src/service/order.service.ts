@@ -4,6 +4,7 @@ import {
   OrderListQueryDTO,
   OrderInsertDTO,
   OrderDetailInsertDTO,
+  OrderWithAvatar,
 } from 'src/dto/order.dto';
 import { DataSource, SelectQueryBuilder } from 'typeorm';
 import { ListPageParam } from 'src/common/type';
@@ -39,50 +40,74 @@ export class OrderService extends BaseService {
   }
 
   async getOrderList(query: OrderListQueryDTO, page: ListPageParam) {
+    let result: (OrderWithAvatar | Order)[] = [];
+    let totalCount: number = 0;
+
     if (query.ids) {
       const [list, total] = await this.orderQBuilder
         .leftJoinAndSelect('order.items', 'order_detail')
         .where('order.id IN (:...ids)', { ids: query.ids })
         .getManyAndCount();
-      return {
-        list,
-        total,
-      };
+      totalCount = total;
+      result = list;
+    } else {
+      const subSqlBuilder = this.withPageOrderBuilder(this.orderQBuilder, {
+        page: page.page,
+        pageSize: page.pageSize,
+        order: query.order,
+        orderBy: query.orderBy,
+      });
+
+      this.genWhereSql<Order, OrderListQueryDTO>(
+        subSqlBuilder,
+        'order',
+        query,
+        {
+          stringType: ['id'],
+          timeType: ['createTime', 'finishTime', 'payTime'],
+          enumType: ['userId', 'orderType', 'payType', 'status'],
+          numberType: ['payAmount'],
+        },
+      );
+
+      const [idList, total] = await subSqlBuilder
+        .select('order.id')
+        .getManyAndCount();
+      if (idList.length === 0) {
+        return {
+          list: [],
+          total: 0,
+        };
+      }
+
+      const list = await this.orderQBuilder
+        .leftJoinAndSelect('order.items', 'order_detail')
+        .where(`order.id IN (:...ids)`, {
+          ids: idList.map((o) => o.id),
+        })
+        .getMany();
+      totalCount = total;
+      result = list;
     }
 
-    const subSqlBuilder = this.withPageOrderBuilder(this.orderQBuilder, {
-      page: page.page,
-      pageSize: page.pageSize,
-      order: query.order,
-      orderBy: query.orderBy,
-    });
-
-    this.genWhereSql<Order, OrderListQueryDTO>(subSqlBuilder, 'order', query, {
-      stringType: ['id'],
-      timeType: ['createTime', 'finishTime', 'payTime'],
-      enumType: ['userId', 'orderType', 'payType', 'status'],
-      numberType: ['payAmount'],
-    });
-
-    const [idList, total] = await subSqlBuilder
-      .select('order.id')
-      .getManyAndCount();
-    if (idList.length === 0) {
-      return {
-        list: [],
-        total: 0,
-      };
+    // 获取订单的头像
+    for (let index = 0; index < result.length; index++) {
+      const item = result[index].items[0];
+      if (!item) {
+        continue;
+      }
+      let rawInfo: Product | Sets;
+      if (item.type === ORDER_DETAIL_TYPE.PRODUCT) {
+        rawInfo = await this.productService.findProductById(item.targetId);
+      } else if (item.type === ORDER_DETAIL_TYPE.SETS) {
+        rawInfo = await this.setsService.findSetsById(item.targetId);
+      }
+      (result[index] as OrderWithAvatar).avatar = rawInfo.avatar;
     }
 
-    const list = await this.orderQBuilder
-      .leftJoinAndSelect('order.items', 'order_detail')
-      .where(`order.id IN (:...ids)`, {
-        ids: idList.map((o) => o.id),
-      })
-      .getMany();
     return {
-      list,
-      total,
+      list: result,
+      total: totalCount,
     };
   }
 
@@ -158,8 +183,12 @@ export class OrderService extends BaseService {
     }
 
     if (type === ORDER_STATUS.CANCEL) {
-      if (order.status === ORDER_STATUS.FINISHED) {
-        return '订单已完成，无法取消';
+      // 只有待支付和待处理状态可以取消
+      if (
+        order.status !== ORDER_STATUS.WAIT_PAY &&
+        order.status !== ORDER_STATUS.WAIT_HANDLE
+      ) {
+        return '订单当前状态无法取消';
       }
       // 恢复优惠券可用状态
       this.couponService.changeReceivedCouponStatus(
@@ -168,6 +197,7 @@ export class OrderService extends BaseService {
         false,
       );
     } else if (type === ORDER_STATUS.REMOVED) {
+      // 只有完成和取消状态可以删除
       if (
         order.status !== ORDER_STATUS.CANCEL &&
         order.status !== ORDER_STATUS.FINISHED

@@ -20,7 +20,7 @@ import {
   OrderValidator,
   OrderDetailValidator,
 } from 'src/dto/order.dto';
-import { ExpressReqWithUser } from 'src/common/type';
+import { ExpressReqWithUser, PLATFORM_TYPE } from 'src/common/type';
 import { AuthService } from 'src/service/auth.service';
 import { ORDER_STATUS, USER_ROLE } from 'src/common/constant';
 import { Roles } from 'src/guard/role.guard';
@@ -36,10 +36,19 @@ export class OrderController {
   @Get('order')
   @Roles([USER_ROLE.USER])
   async getOrderList(
+    @Req() request: ExpressReqWithUser,
     @Query('query') query: OrderListQueryDTO = {},
     @Query('page', new ParseIntPipe({ optional: true })) page?: number,
     @Query('pageSize', new ParseIntPipe({ optional: true })) pageSize?: number,
   ) {
+    if (request.headers.platform === PLATFORM_TYPE.MOBILE_H5) {
+      // 移动客户端只能查看自己的未被标记删除的订单
+      query.userId = [request.userInfo.userId];
+      query.status = Object.values(ORDER_STATUS).filter(
+        (s) => s !== ORDER_STATUS.REMOVED,
+      );
+      query.ids = undefined;
+    }
     if (query.ids) {
       query.ids = await new ParseIntArrayPipe().transform(query.ids, null);
     }

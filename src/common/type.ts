@@ -1,6 +1,14 @@
 import { USER_ROLE } from './constant';
 
+export enum PLATFORM_TYPE {
+  MOBILE_H5 = 'MOBILE_H5',
+  ADMIN = 'ADMIN',
+}
+
 export interface ExpressReqWithUser extends Express.Request {
+  headers: {
+    platform: PLATFORM_TYPE;
+  };
   userInfo: TokenPayload;
 }
 
@@ -18,7 +26,7 @@ export interface ListPageParam {
 }
 
 export type ListQueryParam<T, G extends keyof T> = Partial<
-  Record<G, string | string[] | number[]> & {
+  Record<G, string | number | string[] | number[]> & {
     ids: number[];
     orderBy: G;
     order: 'DESC' | 'ASC';

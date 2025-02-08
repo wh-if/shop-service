@@ -16,6 +16,8 @@ export type OrderStatusChangeDTO = {
 
 export type OrderPayDTO = Pick<Order, 'id' | 'payType'> & { authcode: string };
 
+export type OrderWithAvatar = Order & { avatar: string };
+
 export type OrderInsertDTO = Pick<Order, 'couponIds' | 'note' | 'orderType'> & {
   items: OrderDetailInsertDTO[];
   expectTime: string;
