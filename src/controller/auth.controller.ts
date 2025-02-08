@@ -15,8 +15,8 @@ export class AuthController {
   @Public()
   @Get('code')
   getAuthCode(
-    @Query('telNumber') telNumber: string,
     @Req() request: ExpressReqWithUser,
+    @Query('telNumber') telNumber?: string,
   ) {
     // 如果已经登录则给登录的号码发
     if (!!request.userInfo?.telNumber) {

@@ -29,13 +29,10 @@ export class AuthGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
-    if (isPublic) {
-      return true;
-    }
 
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
-    if (!token) {
+    if (!token && !isPublic) {
       throw new UnauthorizedException();
     }
     try {
@@ -44,13 +41,15 @@ export class AuthGuard implements CanActivate {
       });
       request['userInfo'] = payload;
     } catch {
-      if (request.path === '/auth/token') {
-        throw new UnauthorizedException();
-      } else {
-        throw new HttpException(
-          new AjaxResult(2, '使用 refresh_token 刷新 token', null),
-          HttpStatus.OK,
-        );
+      if (!isPublic) {
+        if (request.path === '/auth/token') {
+          throw new UnauthorizedException();
+        } else {
+          throw new HttpException(
+            new AjaxResult(2, '使用 refresh_token 刷新 token', null),
+            HttpStatus.OK,
+          );
+        }
       }
     }
     return true;
