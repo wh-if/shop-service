@@ -44,9 +44,10 @@ export class OrderController {
     if (request.headers.platform === PLATFORM_TYPE.MOBILE_H5) {
       // 移动客户端只能查看自己的未被标记删除的订单
       query.userId = [request.userInfo.userId];
-      query.status = Object.values(ORDER_STATUS).filter(
-        (s) => s !== ORDER_STATUS.REMOVED,
-      );
+
+      query.status = (
+        (query.status as string[]) || Object.values(ORDER_STATUS)
+      ).filter((s) => s !== ORDER_STATUS.REMOVED);
       query.ids = undefined;
     }
     if (query.ids) {

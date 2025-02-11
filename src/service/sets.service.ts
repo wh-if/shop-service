@@ -20,8 +20,15 @@ export class SetsService extends BaseService {
     return this.dataSource.createQueryBuilder(Sets, 'sets');
   }
 
-  async getSetsList(query: SetsListQueryDTO, page: ListPageParam) {
+  async getSetsList(query: SetsListQueryDTO, page?: ListPageParam) {
     if (query.ids) {
+      // ids 不能为空数组，sql 会报错
+      if (query.ids.length === 0) {
+        return {
+          list: [],
+          total: 0,
+        };
+      }
       const [list, total] = await this.setsQBuilder
         .leftJoinAndSelect('sets.products', 'product')
         .leftJoinAndSelect('product.options', 'product_option')

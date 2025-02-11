@@ -22,8 +22,15 @@ export class ProductService extends BaseService {
     return this.dataSource.createQueryBuilder(Product, 'product');
   }
 
-  async getProductList(query: ProductListQueryDTO, page: ListPageParam) {
+  async getProductList(query: ProductListQueryDTO, page?: ListPageParam) {
     if (query.ids) {
+      // ids 不能为空数组，sql 会报错
+      if (query.ids.length === 0) {
+        return {
+          list: [],
+          total: 0,
+        };
+      }
       const [list, total] = await this.productQBuilder
         .leftJoinAndSelect('product.options', 'product_option')
         .where('product.id IN (:...ids)', { ids: query.ids })

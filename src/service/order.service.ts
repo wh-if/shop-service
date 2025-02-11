@@ -24,6 +24,13 @@ import { Coupon } from 'src/entity/coupon.entity';
 import { Product } from 'src/entity/product.entity';
 import { Sets } from 'src/entity/sets.entity';
 
+type TargetParam = {
+  targetId: number;
+} & (
+  | { targetType: ORDER_DETAIL_TYPE; type?: never }
+  | { type: ORDER_DETAIL_TYPE; targetType?: never }
+);
+
 @Injectable()
 export class OrderService extends BaseService {
   constructor(
@@ -116,17 +123,8 @@ export class OrderService extends BaseService {
       .where({ id })
       .leftJoinAndSelect('order.items', 'order_detail')
       .getOne();
-    const items: (OrderDetail & { rawInfo: Product | Sets })[] = [];
-    for (let index = 0; index < order.items.length; index++) {
-      const item = order.items[index];
-      let rawInfo: Product | Sets;
-      if (item.type === ORDER_DETAIL_TYPE.PRODUCT) {
-        rawInfo = await this.productService.findProductById(item.targetId);
-      } else if (item.type === ORDER_DETAIL_TYPE.SETS) {
-        rawInfo = await this.setsService.findSetsById(item.targetId);
-      }
-      items.push({ ...item, rawInfo });
-    }
+
+    const items = await this.withTargetData(order.items);
     return {
       ...order,
       items,
@@ -388,5 +386,48 @@ export class OrderService extends BaseService {
       order.userId,
       true,
     );
+  }
+
+  /**
+   * 处理商品和套餐的混合数据
+   * @param list
+   * @returns
+   */
+  async withTargetData<T>(list: (T & TargetParam)[]) {
+    // 分类产品和套装
+    const sIds: number[] = [],
+      pIds: number[] = [];
+    list.forEach((item) => {
+      const targetType = item.targetType || item.type;
+      if (targetType === ORDER_DETAIL_TYPE.PRODUCT) {
+        pIds.push(item.targetId);
+      } else if (targetType === ORDER_DETAIL_TYPE.SETS) {
+        sIds.push(item.targetId);
+      }
+    });
+
+    // 分别获取数据
+    const { list: pList } = await this.productService.getProductList({
+      ids: pIds,
+    });
+    const { list: sList } = await this.setsService.getSetsList({ ids: sIds });
+
+    // 按原列表顺序填充
+    const targetList: (T & { target: Product | Sets })[] = [];
+    list.forEach((item) => {
+      let target: Product | Sets;
+      const targetType = item.targetType || item.type;
+      if (targetType === ORDER_DETAIL_TYPE.PRODUCT) {
+        target = pList.find((i) => i.id === item.targetId);
+      } else if (targetType === ORDER_DETAIL_TYPE.SETS) {
+        target = sList.find((i) => i.id === item.targetId);
+      }
+      targetList.push({
+        ...item,
+        target,
+      });
+    });
+
+    return targetList;
   }
 }
