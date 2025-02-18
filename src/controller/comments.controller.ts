@@ -70,7 +70,8 @@ export class CommentsController {
     @Body() dto: CommentsInsertDTO,
     @Req() request: ExpressReqWithUser,
   ) {
-    CommentsValidator.orderId.required().check(dto.orderId);
+    CommentsValidator.targetId.required().check(dto.targetId);
+    CommentsValidator.targetType.required().check(dto.targetType);
     CommentsValidator.parentId.required().check(dto.parentId);
     CommentsValidator.star.required().check(dto.star);
     CommentsValidator.pictures.required().check(dto.pictures);

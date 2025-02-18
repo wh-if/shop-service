@@ -1,4 +1,4 @@
-import { COMMENTS_STATUS } from 'src/common/constant';
+import { COMMENTS_STATUS, ORDER_DETAIL_TYPE } from 'src/common/constant';
 import {
   Column,
   CreateDateColumn,
@@ -14,7 +14,12 @@ export class Comments {
   @Column('int')
   userId: number;
   @Column('int')
-  orderId: number;
+  targetId: number;
+  @Column({
+    type: 'enum',
+    enum: ORDER_DETAIL_TYPE,
+  })
+  targetType: ORDER_DETAIL_TYPE;
   @Column('varchar')
   content: string; // 文本
   @Column({ type: 'simple-array', nullable: true })
