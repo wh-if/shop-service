@@ -3,12 +3,9 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinTable,
-  ManyToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Product } from './product.entity';
 
 @Entity()
 export class User {
@@ -32,7 +29,4 @@ export class User {
   updateTime: Date;
   @Column({ type: 'timestamp', nullable: true })
   lastLoginTime: Date; // 最后登录时间
-  @ManyToMany(() => Product)
-  @JoinTable({ name: 'collect' })
-  collects: Product[];
 }
