@@ -45,7 +45,7 @@ export class CommentsService extends BaseService {
       {
         stringType: ['id'],
         timeType: ['createTime', 'updateTime'],
-        enumType: ['status', 'parentId', 'orderId', 'userId'],
+        enumType: ['status', 'parentId', 'targetId', 'targetType', 'userId'],
         numberType: ['star'],
       },
     );

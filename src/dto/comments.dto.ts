@@ -1,4 +1,4 @@
-import { COMMENTS_STATUS } from 'src/common/constant';
+import { COMMENTS_STATUS, ORDER_DETAIL_TYPE } from 'src/common/constant';
 import { ListQueryParam } from 'src/common/type';
 import { Validator } from 'src/common/validator';
 import { Comments } from 'src/entity/comments.entity';
@@ -10,7 +10,7 @@ export type CommentsUpdateDTO = Pick<
 
 export type CommentsInsertDTO = Pick<
   Comments,
-  'content' | 'pictures' | 'star' | 'orderId' | 'parentId'
+  'content' | 'pictures' | 'star' | 'targetId' | 'targetType' | 'parentId'
 >;
 
 export type CommentsUpdateStatusDTO = {
@@ -21,7 +21,8 @@ export type CommentsUpdateStatusDTO = {
 export type CommentsListQueryDTO = ListQueryParam<
   Comments,
   | 'id'
-  | 'orderId'
+  | 'targetId'
+  | 'targetType'
   | 'userId'
   | 'parentId'
   | 'createTime'
@@ -35,7 +36,8 @@ export const CommentsValidator: Partial<
 > = {
   id: Validator.validate('id').number(),
   userId: Validator.validate('userId').number(),
-  orderId: Validator.validate('orderId').number(),
+  targetId: Validator.validate('targetId').number(),
+  targetType: Validator.validate('targetType').enum(ORDER_DETAIL_TYPE),
   parentId: Validator.validate('parentId').number(),
   star: Validator.validate('star').number().min(0.5).max(5),
   pictures: Validator.validate('pictures').array('string'),
