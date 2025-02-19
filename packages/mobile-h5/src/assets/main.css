@@ -1,0 +1,6 @@
+@import './base.css';
+
+.infotext{
+    color: rgb(114, 114, 114);
+    font-size: 0.8rem;
+}
