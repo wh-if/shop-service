@@ -3,10 +3,29 @@
   "version": "0.0.0",
   "description": "",
   "scripts": {
+    "prepare": "husky",
     "lint": "eslint .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
-  "license": "MIT"
+  "author": "wh",
+  "license": "MIT",
+  "packageManager": "pnpm@9.13.2",
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,vue}": [
+      "eslint --fix"
+    ],
+    "*.{js,jsx,ts,tsx,vue,md}": [
+      "prettier --write"
+    ],
+    "package.json": [
+      "prettier --write"
+    ]
+  },
+  "devDependencies": {
+    "eslint": "^9.23.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.0",
+    "prettier": "^3.5.3"
+  }
 }
